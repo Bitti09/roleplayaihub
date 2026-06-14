@@ -1,0 +1,233 @@
+---
+import { ExternalLink, Calendar, User, HelpCircle, Layers } from '@lucide/astro';
+
+interface Settings {
+  min_p?: number;
+  rep_pen?: number;
+  top_p?: number;
+  top_k?: number;
+  presence_penalty?: number;
+  frequency_penalty?: number;
+}
+
+interface Props {
+  name: string;
+  author?: string;
+  released?: string;
+  format?: string;
+  size?: string;
+  description: string;
+  context?: string;
+  temperature?: number;
+  settings?: Settings;
+  baseModel?: string;
+  base?: boolean;
+  nsfw?: 'yes' | 'limited' | 'no';
+  license?: string;
+  notes?: string;
+  url?: string;
+  tags?: string[];
+}
+
+const { 
+  name, 
+  author = 'Unknown', 
+  released, 
+  format = 'GGUF', 
+  size = 'Unknown', 
+  description, 
+  context = '8k', 
+  temperature, 
+  settings = {}, 
+  baseModel,
+  base = false,
+  nsfw = 'no',
+  license,
+  notes,
+  url,
+  tags = [] 
+} = Astro.props;
+
+const cardId = name.replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').toLowerCase();
+
+// Filter settings to only show defined values
+const activeSettings = Object.entries({
+  'Temperature': temperature,
+  'Min P': settings?.min_p,
+  'Rep. Penalty': settings?.rep_pen,
+  'Top P': settings?.top_p,
+  'Top K': settings?.top_k,
+  'Presence Pen.': settings?.presence_penalty,
+  'Frequency Pen.': settings?.frequency_penalty,
+}).filter(([_, val]) => val !== undefined);
+
+const hasSettings = activeSettings.length > 0;
+
+// Filter out tags that duplicate the size, format, or nsfw state (case-insensitive)
+const filteredTags = tags.filter(tag => 
+  tag.toLowerCase() !== size.toLowerCase() && 
+  tag.toLowerCase() !== format.toLowerCase() &&
+  tag.toLowerCase() !== 'nsfw' &&
+  tag.toLowerCase() !== 'sfw'
+);
+---
+
+<div class="card glass-panel glass-panel-hover overflow-hidden rounded-2xl transition-all duration-300">
+  <div class="card-body p-6 flex flex-col justify-between h-full gap-4.5">
+    <div>
+      <!-- Header -->
+      <div class="flex flex-col gap-2">
+        <h3 class="text-xl font-bold text-neutral-100 font-outfit">
+          {name}
+        </h3>
+        <!-- Release Badge & Author Name -->
+        <div class="flex flex-wrap items-center gap-2.5 text-xs text-neutral-400">
+          {released && (
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md border border-pink-500/20 bg-pink-500/5 text-pink-400 font-semibold">
+              <Calendar class="w-3 h-3" />
+              {released}
+            </span>
+          )}
+          <span class="inline-flex items-center gap-1">
+            <User class="w-3 h-3 opacity-60" />
+            by <span class="text-neutral-300 font-medium">{author}</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Body Description -->
+      <p class="text-sm text-neutral-400 mt-4 leading-relaxed line-clamp-3">
+        {description}
+      </p>
+
+      <!-- First Row of Boxes (Metadata: Base, Type, NSFW) below description -->
+      <div class="grid grid-cols-3 gap-2.5 mt-5">
+        <!-- Base -->
+        <div class="bg-neutral-950/40 border border-white/5 rounded-xl p-2.5 text-center flex flex-col justify-center min-h-[3.75rem]">
+          <div class="text-[9px] font-bold text-neutral-500 uppercase tracking-wider">Base</div>
+          <div class="text-xs font-extrabold text-neutral-200 mt-1 truncate">
+            {base ? (
+              <span class="text-emerald-400">Base Model</span>
+            ) : baseModel ? (
+              baseModel
+            ) : (
+              <span class="text-neutral-600 font-normal italic">None</span>
+            )}
+          </div>
+        </div>
+        <!-- Type -->
+        <div class="bg-neutral-950/40 border border-white/5 rounded-xl p-2.5 text-center flex flex-col justify-center min-h-[3.75rem]">
+          <div class="text-[9px] font-bold text-neutral-500 uppercase tracking-wider">Type</div>
+          <div class="text-xs font-extrabold text-neutral-200 mt-1 truncate">
+            {license ? license : <span class="text-neutral-600 font-normal italic">Unknown</span>}
+          </div>
+        </div>
+        <!-- NSFW -->
+        <div class="bg-neutral-950/40 border border-white/5 rounded-xl p-2.5 text-center flex flex-col justify-center min-h-[3.75rem]">
+          <div class="text-[9px] font-bold text-neutral-500 uppercase tracking-wider">NSFW</div>
+          <div class="text-xs font-extrabold mt-1">
+            {nsfw === 'yes' && <span class="text-red-400">Yes</span>}
+            {nsfw === 'limited' && <span class="text-amber-400">Limited</span>}
+            {nsfw === 'no' && <span class="text-blue-400">No</span>}
+          </div>
+        </div>
+      </div>
+
+      <!-- Second Row of Boxes (Technical Specs: Size, Format, Context) below description -->
+      <div class="grid grid-cols-3 gap-2.5 mt-2.5">
+        <!-- Size -->
+        <div class="bg-neutral-950/40 border border-white/5 rounded-xl p-2.5 text-center">
+          <div class="text-[10px] font-bold text-neutral-500 uppercase tracking-wide">Size</div>
+          <div class="text-sm font-extrabold text-neutral-200 mt-0.5">{size}</div>
+        </div>
+        <!-- Format -->
+        <div class="bg-neutral-950/40 border border-white/5 rounded-xl p-2.5 text-center">
+          <div class="text-[10px] font-bold text-neutral-500 uppercase tracking-wide">Format</div>
+          <div class="text-sm font-extrabold text-neutral-200 mt-0.5">{format}</div>
+        </div>
+        <!-- Context -->
+        <div class="bg-neutral-950/40 border border-white/5 rounded-xl p-2.5 text-center">
+          <div class="text-[10px] font-bold text-neutral-500 uppercase tracking-wide">Context</div>
+          <div class="text-sm font-extrabold text-neutral-200 mt-0.5">{context}</div>
+        </div>
+      </div>
+
+      <!-- Notes Accordion -->
+      {notes && (
+        <div class="collapse collapse-arrow bg-neutral-950/30 border border-white/5 rounded-xl mt-4" style="min-height: 0;">
+          <input type="checkbox" class="peer min-h-0" /> 
+          <div class="collapse-title text-[10px] font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1.5 py-3 px-4" style="min-height: 0; height: auto;">
+            <span>📝 Additional Notes</span>
+          </div>
+          <div class="collapse-content px-4 pb-4">
+            <div class="text-xs text-neutral-400 leading-relaxed border-t border-white/5 pt-3 whitespace-pre-wrap">
+              {notes}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+
+    <!-- Tags and Action -->
+    <div class="flex flex-col gap-2.5 mt-2">
+      <!-- Tags -->
+      {filteredTags.length > 0 && (
+        <div class="flex items-center gap-2.5">
+          <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider shrink-0">Tags:</span>
+          <div class="flex flex-wrap gap-1.5">
+            {filteredTags.map((tag) => (
+              <span class="badge badge-sm bg-neutral-900 border-neutral-800 text-neutral-400 rounded px-2">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Actions Row -->
+      <div class="flex gap-2.5 mt-1.5">
+        {hasSettings && (
+          <button 
+            class="btn btn-sm btn-outline border-neutral-850 hover:border-pink-500/40 hover:bg-pink-500/5 text-neutral-300 hover:text-white rounded-lg flex items-center justify-center gap-1.5 flex-1"
+            onclick={`document.getElementById('modal-${cardId}').showModal()`}
+          >
+            <span>Settings</span>
+          </button>
+        )}
+        {url && (
+          <a 
+            href={url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="btn btn-sm btn-outline border-neutral-850 hover:border-pink-500/40 hover:bg-pink-500/5 text-neutral-300 hover:text-white rounded-lg flex items-center justify-center gap-1.5 flex-1"
+          >
+            <span>Get Model</span>
+            <ExternalLink class="w-3.5 h-3.5 opacity-70" />
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommended Settings Modal -->
+  {hasSettings && (
+    <dialog id={`modal-${cardId}`} class="modal modal-bottom sm:modal-middle bg-black/60 backdrop-blur-xs">
+      <div class="modal-box bg-[#0c0c0e] border border-white/10 rounded-2xl max-w-sm p-6 relative">
+        <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-neutral-400 hover:text-white">✕</button>
+        </form>
+        <h3 class="font-outfit font-bold text-lg text-neutral-100">Recommended Parameters</h3>
+        <p class="text-[10px] font-bold text-pink-500 uppercase tracking-wider mt-0.5">For {name}</p>
+        
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2.5 mt-5 text-xs text-neutral-400 border-t border-white/5 pt-4">
+          {activeSettings.map(([label, val]) => (
+            <div class="flex items-center justify-between py-1 border-b border-white/[0.02]">
+              <span class="opacity-70">{label}</span>
+              <span class="font-mono font-semibold text-neutral-200">{val}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </dialog>
+  )}
+</div>

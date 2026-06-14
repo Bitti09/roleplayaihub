@@ -1,8 +1,15 @@
 name: "Whisper"
+author: "OpenAI"
+released: "2022-09-21"
+format: "PyTorch"
+size: "1.5B"
 description: "High-performance open speech-to-text and translation model by OpenAI."
+context: "N/A"
 url: "https://github.com/openai/whisper"
 category: "Audio Models"
 subcategory: "Voice Recognition"
-tags: ["Whisper", "OpenAI", "Speech-to-Text"]
-icon: "mic"
-featured: false
+tags: ["Speech-to-Text", "Transcription", "Translation"]
+baseModel: "Whisper"
+base: true
+nsfw: "yes"
+license: "Open Source"

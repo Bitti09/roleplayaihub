@@ -1,8 +1,15 @@
 name: "Stable Diffusion 3"
+author: "Stability AI"
+released: "2024-06-12"
+format: "SafeTensors"
+size: "8B"
 description: "Next-generation open image generation model from Stability AI, featuring advanced prompt adherence."
+context: "N/A"
 url: "https://stability.ai"
 category: "Image Models"
 subcategory: "Image Generation"
-tags: ["SD3", "Stability AI", "Open Weight"]
-icon: "image"
-featured: true
+tags: ["Image Gen", "Art"]
+baseModel: "Stable Diffusion 3"
+base: true
+nsfw: "limited"
+license: "Open Weight"

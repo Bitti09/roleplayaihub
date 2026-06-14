@@ -1,8 +1,14 @@
 name: "ChatGPT"
+author: "OpenAI"
+released: "2022-11-30"
+format: "API"
+size: "Cloud"
 description: "State-of-the-art conversational AI model by OpenAI, ideal for chat, coding, and logical reasoning."
+context: "128k"
 url: "https://chatgpt.com"
 category: "Text Models"
 subcategory: "Chat Assistants"
-tags: ["GPT-4o", "OpenAI", "Proprietary"]
-icon: "message-square"
-featured: true
+tags: ["Chat", "Coding", "Logic"]
+baseModel: "GPT-4"
+nsfw: "no"
+license: "Proprietary"

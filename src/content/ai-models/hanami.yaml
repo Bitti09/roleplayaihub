@@ -1,0 +1,22 @@
+name: Hanami v2.1
+author: "alpindale"
+released: "2026-06-12"
+format: EXL2
+size: 7B
+description: "Dieses Modell ist spezialisiert auf tiefgreifendes, narratives Roleplay. Es bietet exzellente logische Konsistenz."
+context: 32k
+temperature: 0.85
+settings:
+  min_p: 0.10
+  rep_pen: 1.12
+  top_p: 0.90
+  top_k: 40
+  presence_penalty: 0.05
+  frequency_penalty: 0.05
+category: "Text Models"
+subcategory: "Chat Assistants"
+url: "https://huggingface.co/alpindale/Hanami-7B-v2.1"
+tags: ["Roleplay", "NSFW"]
+baseModel: "Llama 3"
+license: "Open Weight"
+notes: "Empfohlenes Prompt-Template: ChatML oder Alpaca.\nFür tiefgründiges Story-Schreiben und Erotic Roleplay (ERP) wird eine Repetition Penalty von 1.12 bis 1.15 empfohlen.\n\nKontext-Fenster kann bis zu 32k erweitert werden."

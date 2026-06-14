@@ -1,8 +1,14 @@
 name: "Claude"
+author: "Anthropic"
+released: "2024-06-21"
+format: "API"
+size: "Cloud"
 description: "Anthropic's flagship AI model, known for natural dialogue, complex analysis, and long context windows."
+context: "200k"
 url: "https://claude.ai"
 category: "Text Models"
 subcategory: "Chat Assistants"
-tags: ["Claude 3.5", "Anthropic", "Proprietary"]
-icon: "brain"
-featured: true
+tags: ["Analysis", "Creative Writing", "Long Context"]
+baseModel: "Claude 3"
+nsfw: "no"
+license: "Proprietary"

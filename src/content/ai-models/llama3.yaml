@@ -1,8 +1,15 @@
 name: "Llama 3"
+author: "Meta"
+released: "2024-04-18"
+format: "GGUF"
+size: "8B/70B"
 description: "Meta's highly capable open-weights model, built for diverse text generation, reasoning, and instruction-following."
+context: "8k"
 url: "https://meta.ai"
 category: "Text Models"
 subcategory: "Chat Assistants"
-tags: ["Llama 3", "Meta", "Open Weight"]
-icon: "bot"
-featured: false
+tags: ["General Assistant", "Coding", "Multilingual"]
+baseModel: "Llama 3"
+base: true
+nsfw: "limited"
+license: "Open Weight"

@@ -2,6 +2,7 @@
 import { getCollection, getEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
+import ModelCard from '../components/ModelCard.astro';
 import { Layers, BookOpen, Compass, ChevronRight } from '@lucide/astro';
 
 export async function getStaticPaths() {
@@ -157,13 +158,34 @@ const CollectionIcon = collectionIcons[collection] || Compass;
                     <!-- Grid of Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {sub.items.map((item: any) => (
-                        <Card 
-                          name={item.data.name} 
-                          description={item.data.description} 
-                          url={item.data.url} 
-                          tags={item.data.tags} 
-                          icon={item.data.icon} 
-                        />
+                        collection === 'ai-models' ? (
+                          <ModelCard 
+                            name={item.data.name}
+                            author={item.data.author}
+                            released={item.data.released}
+                            format={item.data.format}
+                            size={item.data.size}
+                            description={item.data.description}
+                            context={item.data.context}
+                            temperature={item.data.temperature}
+                            settings={item.data.settings}
+                            baseModel={item.data.baseModel}
+                            base={item.data.base}
+                            nsfw={item.data.nsfw}
+                            license={item.data.license}
+                            notes={item.data.notes}
+                            url={item.data.url}
+                            tags={item.data.tags}
+                          />
+                        ) : (
+                          <Card 
+                            name={item.data.name} 
+                            description={item.data.description} 
+                            url={item.data.url} 
+                            tags={item.data.tags} 
+                            icon={item.data.icon} 
+                          />
+                        )
                       ))}
                     </div>
                   ) : (
