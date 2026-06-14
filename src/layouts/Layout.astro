@@ -7,7 +7,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "RPAI Hub - The ultimate directory for Roleplay AI Models, Frontends, and Tools" } = Astro.props;
+const { title, description = "Roleplay AI Hub - The ultimate directory for Roleplay AI Models, Frontends, and Tools" } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -19,7 +19,7 @@ const { title, description = "RPAI Hub - The ultimate directory for Roleplay AI 
     <meta name="generator" content={Astro.generator} />
     
     <!-- SEO Meta Tags -->
-    <title>{title} | RPAI Hub</title>
+    <title>{title} | Roleplay AI Hub</title>
     <meta name="description" content={description} />
     
     <!-- Google Fonts -->
@@ -40,7 +40,11 @@ const { title, description = "RPAI Hub - The ultimate directory for Roleplay AI 
               <Sparkles class="w-4 h-4" />
             </span>
             <span class="font-outfit font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-neutral-100 to-neutral-400 bg-clip-text text-transparent group-hover:text-white transition-all">
-              RPAI<span class="text-pink-500 font-medium">Hub</span>
+              Roleplay AI<span class="text-pink-500 font-medium"> Hub</span>
+            </span>
+            <!-- v0.0.1 Badge -->
+            <span class="text-[9px] font-semibold bg-neutral-900 border border-neutral-800 text-neutral-400 rounded px-1.5 py-0.5 ml-1 self-center">
+              v0.0.1
             </span>
           </a>
         </div>
@@ -140,7 +144,7 @@ const { title, description = "RPAI Hub - The ultimate directory for Roleplay AI 
     <footer class="border-t border-white/5 bg-[#09090b] py-8 mt-16 text-center text-xs text-neutral-500">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-2">
         <p>Made with 💖 for the AI community</p>
-        <p class="opacity-70">&copy; {new Date().getFullYear()} RPAI Hub. Built with Astro & DaisyUI.</p>
+        <p class="opacity-70">&copy; {new Date().getFullYear()} Roleplay AI Hub. Built with Astro & DaisyUI.</p>
         <p class="opacity-50 text-[10px] mt-1.5">This site does not host any copyrighted files. All links point to external resources.</p>
       </div>
     </footer>
