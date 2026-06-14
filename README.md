@@ -1,43 +1,49 @@
-# Astro Starter Kit: Minimal
+# 🎭 Roleplay AI Hub (v0.0.1)
 
-```sh
-pnpm create astro@latest -- --template minimal
-```
+Welcome to **Roleplay AI Hub**, a curated directory of the best AI models, frontends, and tools tailored specifically for interactive text-based roleplay and creative writing. 
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+This directory is designed to help you quickly find the right tools and settings for your creative storytelling adventures.
 
-## 🚀 Project Structure
+---
 
-Inside of your Astro project, you'll see the following folders and files:
+## ✨ Features
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+- 🧠 **Curated AI Models:** Find models optimized for narrative writing, with clear labels for base model lineages, licensing, and NSFW content capabilities.
+- ⚙️ **One-Click Settings:** View recommended parameters (such as Temperature, Min P, and Repetition Penalty) inside simple settings popups.
+- 📝 **Additional Notes:** Collapsible tips and prompt template recommendations for each model.
+- 🧭 **Categorized Navigation:** Easy browsing with a dynamic sidebar that automatically tracks your scroll position.
+- ⚡ **WIP Alert Bar:** A top banner informing users about active development status and content updates.
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+---
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## 🚀 Getting Started
 
-Any static assets, like images, can be placed in the `public/` directory.
+### How to Run Locally
 
-## 🧞 Commands
+If you want to run the website on your own computer:
 
-All commands are run from the root of the project, from a terminal:
+1. **Pre-requisites:** Make sure you have [Node.js](https://nodejs.org/) installed.
+2. **Install Dependencies:** Open your terminal inside the project directory and run:
+   ```bash
+   pnpm install
+   ```
+3. **Start Development Server:** Run the following command:
+   ```bash
+   pnpm dev
+   ```
+4. **View the Site:** Open [http://localhost:4321/](http://localhost:4321/) in your web browser!
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+---
 
-## 👀 Want to learn more?
+## ✍️ How to Add or Edit Resources
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+All content on the site is stored in simple, human-readable text files (YAML format) inside the `src/content/` folder.
+
+To add a new resource:
+1. Navigate to the appropriate folder:
+   - `src/content/ai-models/` for AI models.
+   - `src/content/frontends/` for user interfaces.
+   - `src/content/tools/` for other software and tools.
+2. Create a new `.yaml` file (e.g., `my-model.yaml`).
+3. Fill in the resource details (name, description, tags, etc.) using the existing files as examples!
+4. The website will automatically update with your new content.
