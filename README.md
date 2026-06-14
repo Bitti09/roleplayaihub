@@ -12,7 +12,6 @@ This directory is designed to help you quickly find the right tools and settings
 - ⚙️ **One-Click Settings:** View recommended parameters (such as Temperature, Min P, and Repetition Penalty) inside simple settings popups.
 - 📝 **Additional Notes:** Collapsible tips and prompt template recommendations for each model.
 - 🧭 **Categorized Navigation:** Easy browsing with a dynamic sidebar that automatically tracks your scroll position.
-- ⚡ **WIP Alert Bar:** A top banner informing users about active development status and content updates.
 
 ---
 
