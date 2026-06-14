@@ -5,15 +5,12 @@ import Card from '../components/Card.astro';
 import ModelCard from '../components/ModelCard.astro';
 import { Layers, BookOpen, Compass, ChevronRight } from '@lucide/astro';
 
-export async function getStaticPaths() {
-  return [
-    { params: { collection: 'ai-models' } },
-    { params: { collection: 'frontends' } },
-    { params: { collection: 'tools' } },
-  ];
-}
-
 const { collection } = Astro.params;
+
+const validCollections = ['ai-models', 'frontends', 'tools'];
+if (!validCollections.includes(collection as string)) {
+  return Astro.redirect('/404');
+}
 
 // Fetch collection entries and navigation config
 const items = await getCollection(collection as any);
