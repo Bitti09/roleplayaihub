@@ -55,13 +55,13 @@ const iconColors = colors[colorIndex];
         <div class={`p-2.5 rounded-xl border flex items-center justify-center shrink-0 ${iconColors}`}>
           <IconComponent class="w-5 h-5" />
         </div>
-        <h3 class="text-lg font-semibold text-neutral-100 group-hover:text-white transition-colors">
+        <h3 class="text-lg font-semibold text-base-content group-hover:text-base-content transition-colors">
           {name}
         </h3>
       </div>
       
       <!-- Description -->
-      <p class="text-sm text-neutral-400 mt-4 leading-relaxed line-clamp-3">
+      <p class="text-sm text-base-content/70 mt-4 leading-relaxed line-clamp-3">
         {description}
       </p>
     </div>
@@ -71,10 +71,10 @@ const iconColors = colors[colorIndex];
       <!-- Tags -->
       {tags.length > 0 && (
         <div class="flex items-center gap-2">
-          <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider shrink-0">Tags:</span>
+          <span class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider shrink-0">Tags:</span>
           <div class="flex flex-wrap gap-1.5">
             {tags.map((tag) => (
-              <span class="badge badge-sm bg-neutral-800/80 border-neutral-700 text-neutral-300 rounded px-2">
+              <span class="badge badge-sm bg-base-100 border-base-content/10 text-base-content/70 rounded px-2">
                 {tag}
               </span>
             ))}
@@ -88,7 +88,7 @@ const iconColors = colors[colorIndex];
           href={url} 
           target="_blank" 
           rel="noopener noreferrer" 
-          class="btn btn-sm btn-outline border-neutral-700 hover:border-pink-500/50 hover:bg-pink-500/5 text-neutral-300 hover:text-white rounded-lg flex items-center justify-between w-full mt-1.5"
+          class="btn btn-sm btn-outline border-base-content/20 hover:border-pink-500/50 hover:bg-pink-500/5 text-base-content/85 hover:text-base-content rounded-lg flex items-center justify-between w-full mt-1.5"
         >
           <span>Visit Site</span>
           <ExternalLink class="w-3.5 h-3.5 ml-1 opacity-70" />
