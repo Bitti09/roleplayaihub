@@ -6,3 +6,12 @@ compatibility_flags = ["nodejs_compat"]
 [assets]
 directory = "./dist"
 binding = "ASSETS"
+
+[[routes]]
+pattern = "roleplayaihub.gg"
+custom_domain = true
+
+[[routes]]
+pattern = "www.roleplayaihub.gg"
+custom_domain = true
+
