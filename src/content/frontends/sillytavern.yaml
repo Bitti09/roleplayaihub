@@ -1,0 +1,8 @@
+name: "SillyTavern"
+description: "Power-user frontend for roleplay, text generation, and character-based chat."
+url: "https://sillytavern.app"
+category: "Web Clients"
+subcategory: "Chat Interfaces"
+tags: ["Roleplay", "Character Cards", "Open Source"]
+icon: "user"
+featured: true

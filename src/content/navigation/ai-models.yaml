@@ -1,0 +1,8 @@
+title: "AI Models"
+categories:
+  - name: "Text Models"
+    subcategories: ["Chat Assistants", "Writing & Language"]
+  - name: "Image Models"
+    subcategories: ["Image Generation", "Image Editing"]
+  - name: "Audio Models"
+    subcategories: ["Text-to-Speech", "Voice Recognition"]

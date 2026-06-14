@@ -1,0 +1,180 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { 
+  Brain, MessageSquare, Image, Mic, Layout as WebIcon, 
+  Laptop, Smartphone, Terminal, Server, Settings, ArrowRight 
+} from '@lucide/astro';
+
+const categories = [
+  {
+    title: "Text Models",
+    description: "Explore advanced large language models, chat assistants, and translation engines.",
+    icon: MessageSquare,
+    color: "text-rose-500 bg-rose-500/10 border-rose-500/20",
+    href: "/ai-models#Text-Models"
+  },
+  {
+    title: "Image Models",
+    description: "Create stunning visuals using next-generation text-to-image and editing models.",
+    icon: Image,
+    color: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+    href: "/ai-models#Image-Models"
+  },
+  {
+    title: "Audio Models",
+    description: "Convert text to high-fidelity speech and run automatic voice recognition.",
+    icon: Mic,
+    color: "text-violet-500 bg-violet-500/10 border-violet-500/20",
+    href: "/ai-models#Audio-Models"
+  },
+  {
+    title: "Web Clients",
+    description: "Connect your models to self-hosted, multi-provider web chat interfaces.",
+    icon: WebIcon,
+    color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+    href: "/frontends#Web-Clients"
+  },
+  {
+    title: "Desktop Clients",
+    description: "Beautiful native desktop applications to run and chat with local LLMs offline.",
+    icon: Laptop,
+    color: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+    href: "/frontends#Desktop-Clients"
+  },
+  {
+    title: "Mobile Clients",
+    description: "Experience roleplay and assistant chat on the go with Android and iOS apps.",
+    icon: Smartphone,
+    color: "text-cyan-500 bg-cyan-500/10 border-cyan-500/20",
+    href: "/frontends#Mobile-Clients"
+  },
+  {
+    title: "CLI Clients",
+    description: "Lightweight, developer-first terminal interfaces and TUI chat clients.",
+    icon: Terminal,
+    color: "text-pink-500 bg-pink-500/10 border-pink-500/20",
+    href: "/frontends#CLI-Clients"
+  },
+  {
+    title: "Inference Servers",
+    description: "Host models locally with KoboldCPP, Ollama, or OpenAI-compatible backends.",
+    icon: Server,
+    color: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20",
+    href: "/tools#Inference-Servers"
+  },
+  {
+    title: "Development Tools",
+    description: "CLI helpers, database scrapers, lorebook creators, and context managers.",
+    icon: Settings,
+    color: "text-teal-500 bg-teal-500/10 border-teal-500/20",
+    href: "/tools#Development-Tools"
+  }
+];
+---
+
+<Layout title="Home">
+  <!-- Hero Section -->
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 md:pt-24 md:pb-28">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- Left Hero Text (7 cols on desktop) -->
+      <div class="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
+        
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-xs font-semibold text-neutral-300 mb-6 shadow-sm">
+          <span>June Updates</span> 📝
+        </div>
+        
+        <!-- Heading -->
+        <h1 class="font-outfit font-extrabold text-5xl md:text-7xl tracking-tight leading-none">
+          <span class="bg-gradient-to-r from-orange-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
+            rpaihub
+          </span>
+        </h1>
+        
+        <!-- Subheading -->
+        <p class="mt-4 text-lg md:text-xl text-neutral-400 font-medium max-w-lg">
+          The ultimate collection of AI models, frontends, and tools on the internet!
+        </p>
+        
+        <!-- Action Buttons (FMHY style pills) -->
+        <div class="mt-8 flex flex-wrap justify-center lg:justify-start gap-3">
+          <a href="/ai-models" class="btn btn-sm sm:btn-md rounded-full px-5 bg-pink-600 hover:bg-pink-700 border-none text-white shadow-lg shadow-pink-600/20 font-medium">
+            Explore Models
+          </a>
+          <a href="/frontends" class="btn btn-sm sm:btn-md rounded-full px-5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-200 font-medium">
+            Frontends
+          </a>
+          <a href="/tools" class="btn btn-sm sm:btn-md rounded-full px-5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-200 font-medium">
+            Tools
+          </a>
+          <a href="https://discord.com" target="_blank" rel="noopener noreferrer" class="btn btn-sm sm:btn-md rounded-full px-5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-200 font-medium">
+            Discord
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Hero Graphic (5 cols on desktop) -->
+      <div class="lg:col-span-5 flex justify-center items-center relative">
+        <!-- Glowing background behind the brain -->
+        <div class="absolute w-72 h-72 rounded-full bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-blue-500/25 blur-3xl -z-10"></div>
+        <div class="absolute w-48 h-48 rounded-full bg-gradient-to-tr from-blue-500/10 via-pink-500/10 to-transparent blur-2xl -z-10 animate-pulse"></div>
+
+        <!-- Glassmorphism Card Wrapper -->
+        <div class="brain-glow relative p-12 rounded-[2.5rem] glass-panel flex justify-center items-center group transition-all duration-500 hover:scale-[1.02] cursor-pointer">
+          <!-- The Glowing Brain Icon -->
+          <Brain class="w-32 h-32 text-white drop-shadow-[0_0_15px_rgba(236,72,153,0.8)] opacity-95 group-hover:scale-105 transition-transform duration-300" />
+          
+          <!-- Outer subtle particle circles -->
+          <div class="absolute -inset-2 rounded-[2.8rem] border border-white/5 opacity-50 pointer-events-none"></div>
+          <div class="absolute -inset-4 rounded-[3.2rem] border border-white/5 opacity-20 pointer-events-none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Grid Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Divider -->
+    <div class="flex items-center justify-center gap-4 my-8">
+      <div class="h-px bg-white/5 flex-grow max-w-xs"></div>
+      <span class="text-xs font-semibold tracking-wider text-neutral-500 uppercase flex items-center gap-1.5">
+        Or browse these categories ✨
+      </span>
+      <div class="h-px bg-white/5 flex-grow max-w-xs"></div>
+    </div>
+
+    <!-- The 3x3 Grid of Categories -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
+      {categories.map((cat) => {
+        const Icon = cat.icon;
+        return (
+          <a 
+            href={cat.href}
+            class="card glass-panel glass-panel-hover overflow-hidden rounded-2xl transition-all duration-300 group cursor-pointer"
+          >
+            <div class="card-body p-6 flex flex-col justify-between h-full gap-4">
+              <div>
+                <!-- Icon container -->
+                <div class={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 shrink-0 transition-transform group-hover:scale-110 duration-300 ${cat.color}`}>
+                  <Icon class="w-5 h-5" />
+                </div>
+                
+                <!-- Category Title -->
+                <h2 class="text-base font-bold text-neutral-100 group-hover:text-pink-400 transition-colors flex items-center justify-between">
+                  {cat.title}
+                  <ArrowRight class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                </h2>
+                
+                <!-- Description -->
+                <p class="text-xs text-neutral-400 mt-2 leading-relaxed">
+                  {cat.description}
+                </p>
+              </div>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</Layout>

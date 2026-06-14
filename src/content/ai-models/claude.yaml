@@ -1,0 +1,8 @@
+name: "Claude"
+description: "Anthropic's flagship AI model, known for natural dialogue, complex analysis, and long context windows."
+url: "https://claude.ai"
+category: "Text Models"
+subcategory: "Chat Assistants"
+tags: ["Claude 3.5", "Anthropic", "Proprietary"]
+icon: "brain"
+featured: true

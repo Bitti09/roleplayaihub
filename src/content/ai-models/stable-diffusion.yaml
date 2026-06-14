@@ -1,0 +1,8 @@
+name: "Stable Diffusion 3"
+description: "Next-generation open image generation model from Stability AI, featuring advanced prompt adherence."
+url: "https://stability.ai"
+category: "Image Models"
+subcategory: "Image Generation"
+tags: ["SD3", "Stability AI", "Open Weight"]
+icon: "image"
+featured: true

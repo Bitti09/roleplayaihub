@@ -1,0 +1,8 @@
+name: "Ollama"
+description: "Get up and running with large language models locally. Simple API and CLI tool."
+url: "https://ollama.com"
+category: "Inference Servers"
+subcategory: "Local Run Backends"
+tags: ["CLI", "Local LLM", "Open Source"]
+icon: "server"
+featured: true

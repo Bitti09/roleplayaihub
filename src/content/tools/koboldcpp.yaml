@@ -1,0 +1,8 @@
+name: "KoboldCPP"
+description: "A simple one-file way to run various GGUF models on CPU and GPU with a Kobold AI API."
+url: "https://github.com/LostRuins/koboldcpp"
+category: "Inference Servers"
+subcategory: "Local Run Backends"
+tags: ["Local", "GGUF", "Open Source"]
+icon: "settings"
+featured: true

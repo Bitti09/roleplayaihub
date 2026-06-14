@@ -1,0 +1,8 @@
+name: "Whisper"
+description: "High-performance open speech-to-text and translation model by OpenAI."
+url: "https://github.com/openai/whisper"
+category: "Audio Models"
+subcategory: "Voice Recognition"
+tags: ["Whisper", "OpenAI", "Speech-to-Text"]
+icon: "mic"
+featured: false

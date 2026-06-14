@@ -1,0 +1,8 @@
+name: "LM Studio"
+description: "Run any open-source model locally on your laptop, offline. Beautiful native desktop UI."
+url: "https://lmstudio.ai"
+category: "Desktop Clients"
+subcategory: "Cross-Platform UIs"
+tags: ["Local Inference", "Desktop", "Proprietary"]
+icon: "laptop"
+featured: true

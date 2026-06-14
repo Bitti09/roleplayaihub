@@ -1,0 +1,214 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/Card.astro';
+import { Layers, BookOpen, Compass, ChevronRight } from '@lucide/astro';
+
+export async function getStaticPaths() {
+  return [
+    { params: { collection: 'ai-models' } },
+    { params: { collection: 'frontends' } },
+    { params: { collection: 'tools' } },
+  ];
+}
+
+const { collection } = Astro.params;
+
+// Fetch collection entries and navigation config
+const items = await getCollection(collection as any);
+const navigation = await getEntry('navigation', collection as any);
+
+if (!navigation) {
+  return Astro.redirect('/404');
+}
+
+// Slugify helper for anchors and sidebar target IDs
+function slugify(text: string) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/&/g, '-and-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
+}
+
+// Group items by category and subcategory
+const structuredData = navigation.data.categories.map((catObj) => {
+  const subcategoriesWithItems = catObj.subcategories.map((subName) => {
+    const matchedItems = items.filter(
+      (item: any) => 
+        item.data.category === catObj.name && 
+        item.data.subcategory === subName
+    );
+    return {
+      name: subName,
+      slug: slugify(catObj.name + '-' + subName),
+      items: matchedItems,
+    };
+  });
+
+  return {
+    name: catObj.name,
+    slug: slugify(catObj.name),
+    subcategories: subcategoriesWithItems,
+  };
+});
+
+// Collection Icon Helper
+const collectionIcons: Record<string, any> = {
+  'ai-models': Layers,
+  'frontends': BookOpen,
+  'tools': Compass,
+};
+const CollectionIcon = collectionIcons[collection] || Compass;
+---
+
+<Layout title={navigation.data.title}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Breadcrumbs & Page Header -->
+    <div class="mb-10">
+      <div class="text-xs text-neutral-500 flex items-center gap-1.5 mb-3">
+        <a href="/" class="hover:text-neutral-300 transition-colors">Home</a>
+        <ChevronRight class="w-3 h-3 opacity-60" />
+        <span class="text-neutral-400 capitalize">{collection.replace('-', ' ')}</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="p-3 rounded-2xl bg-gradient-to-tr from-pink-500/10 to-purple-500/10 border border-pink-500/20 text-pink-400">
+          <CollectionIcon class="w-7 h-7" />
+        </div>
+        <div>
+          <h1 class="font-outfit font-extrabold text-3xl sm:text-4xl text-neutral-100">
+            {navigation.data.title}
+          </h1>
+          <p class="text-sm text-neutral-400 mt-1.5">
+            Discover and filter {navigation.data.title.toLowerCase()} curated by the community.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Workspace Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Sticky Sidebar Navigation (3 cols on desktop) -->
+      <aside class="hidden lg:block lg:col-span-3 sticky top-24 self-start max-h-[80vh] overflow-y-auto pr-2">
+        <nav class="bg-[#121214]/40 border border-white/5 rounded-2xl p-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-3 px-3">
+            Navigation
+          </div>
+          <ul class="flex flex-col gap-4">
+            {navigation.data.categories.map((category) => (
+              <li class="flex flex-col gap-1">
+                <!-- Top-Level Category Label -->
+                <span class="text-xs font-bold text-neutral-400 px-3 py-1 font-outfit uppercase tracking-wide">
+                  {category.name}
+                </span>
+                <!-- Second-Level Subcategories -->
+                <ul class="flex flex-col gap-0.5 mt-0.5 border-l border-white/5 ml-4 pl-1">
+                  {category.subcategories.map((sub) => {
+                    const slug = slugify(category.name + '-' + sub);
+                    return (
+                      <li>
+                        <a 
+                          href={`#${slug}`}
+                          class="sidebar-link block text-xs text-neutral-400 hover:text-white hover:bg-white/5 px-3 py-1.5 rounded-lg transition-all duration-200"
+                          data-target={slug}
+                        >
+                          {sub}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Content Area (9 cols on desktop) -->
+      <div class="lg:col-span-9 flex flex-col gap-16">
+        {structuredData.map((category) => (
+          <section class="flex flex-col gap-8 scroll-mt-24">
+            <!-- Category Title -->
+            <div class="border-b border-white/5 pb-3 flex items-center justify-between">
+              <h2 class="font-outfit font-extrabold text-2xl text-neutral-200 uppercase tracking-wide">
+                {category.name}
+              </h2>
+              <span class="text-xs font-medium text-neutral-500 px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800">
+                {category.subcategories.reduce((acc, sub) => acc + sub.items.length, 0)} items
+              </span>
+            </div>
+
+            <!-- Subcategories content loops -->
+            <div class="flex flex-col gap-12">
+              {category.subcategories.map((sub) => (
+                <div id={sub.slug} class="scroll-mt-24 subcategory-section">
+                  <!-- Subcategory title -->
+                  <h3 class="text-base font-bold text-neutral-300 flex items-center gap-2 mb-5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
+                    {sub.name}
+                    <span class="text-xs font-normal text-neutral-500">({sub.items.length})</span>
+                  </h3>
+
+                  {sub.items.length > 0 ? (
+                    <!-- Grid of Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      {sub.items.map((item: any) => (
+                        <Card 
+                          name={item.data.name} 
+                          description={item.data.description} 
+                          url={item.data.url} 
+                          tags={item.data.tags} 
+                          icon={item.data.icon} 
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <!-- Empty State -->
+                    <div class="text-sm text-neutral-500 py-8 px-6 border border-dashed border-neutral-800 rounded-2xl text-center bg-[#121214]/10">
+                      No tools added to this subcategory yet.
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-side Intersection Observer Script for Sidebar Scroll-Spy -->
+  <script>
+    const observerOptions = {
+      root: null,
+      rootMargin: '-10% 0px -80% 0px', // Trigger when section is near top of viewport
+      threshold: 0
+    };
+
+    const links = document.querySelectorAll('.sidebar-link');
+    const sections = document.querySelectorAll('.subcategory-section');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          links.forEach(link => {
+            if (link.getAttribute('data-target') === id) {
+              link.classList.add('text-pink-500', 'font-bold', 'bg-white/5');
+              link.classList.remove('text-neutral-400');
+            } else {
+              link.classList.remove('text-pink-500', 'font-bold', 'bg-white/5');
+              link.classList.add('text-neutral-400');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+  </script>
+</Layout>

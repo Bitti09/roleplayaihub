@@ -1,0 +1,10 @@
+title: "Frontends"
+categories:
+  - name: "Web Clients"
+    subcategories: ["Chat Interfaces", "Admin Dashboards"]
+  - name: "Desktop Clients"
+    subcategories: ["Cross-Platform UIs", "OS Native UIs"]
+  - name: "Mobile Clients"
+    subcategories: ["Android Apps", "iOS Apps"]
+  - name: "CLI Clients"
+    subcategories: ["Interactive Terminals", "TUI Clients"]

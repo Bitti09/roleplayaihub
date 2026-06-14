@@ -1,0 +1,8 @@
+name: "Open WebUI"
+description: "User-friendly WebUI for local LLMs, fully compatible with Ollama and OpenAI APIs."
+url: "https://openwebui.com"
+category: "Web Clients"
+subcategory: "Chat Interfaces"
+tags: ["Ollama", "Open Source", "Self-Hosted"]
+icon: "globe"
+featured: true

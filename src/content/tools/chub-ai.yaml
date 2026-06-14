@@ -1,0 +1,8 @@
+name: "Chub.ai"
+description: "One of the largest directories of community-made character cards, prompts, and lorebooks."
+url: "https://chub.ai"
+category: "Development Tools"
+subcategory: "Scrapers & Data"
+tags: ["Characters", "Lorebooks", "Database"]
+icon: "database"
+featured: true

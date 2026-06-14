@@ -1,0 +1,8 @@
+name: "Jan"
+description: "An open-source alternative to ChatGPT that runs 100% offline on your computer. Modern interface."
+url: "https://jan.ai"
+category: "Desktop Clients"
+subcategory: "Cross-Platform UIs"
+tags: ["Local LLM", "Desktop", "Open Source"]
+icon: "terminal"
+featured: false

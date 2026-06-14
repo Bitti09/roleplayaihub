@@ -1,0 +1,8 @@
+name: "Llama 3"
+description: "Meta's highly capable open-weights model, built for diverse text generation, reasoning, and instruction-following."
+url: "https://meta.ai"
+category: "Text Models"
+subcategory: "Chat Assistants"
+tags: ["Llama 3", "Meta", "Open Weight"]
+icon: "bot"
+featured: false
