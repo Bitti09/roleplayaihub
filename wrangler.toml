@@ -1,5 +1,4 @@
 name = "roleplayaihub"
-main = "@astrojs/cloudflare/entrypoints/server"
 compatibility_date = "2026-06-12"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = true
@@ -13,5 +12,4 @@ pattern = "www.roleplayaihub.gg"
 custom_domain = true
 
 [assets]
-directory = "./dist"
-binding = "ASSETS"
+directory = "./dist/client"

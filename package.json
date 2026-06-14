@@ -16,10 +16,13 @@
     "@lucide/astro": "^1.18.0",
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^6.4.6",
+    "astro-pagefind": "^2.0.0",
     "tailwindcss": "^4.3.1",
     "wrangler": "^4.100.0"
   },
   "devDependencies": {
-    "daisyui": "^5.5.23"
+    "daisyui": "^5.5.23",
+    "pagefind": "^1.5.2",
+    "yaml": "^2.9.0"
   }
 }

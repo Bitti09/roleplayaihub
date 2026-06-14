@@ -70,3 +70,42 @@
 :root[data-theme="light"] .theme-icon-sun {
   display: block;
 }
+
+/* Pagefind Component UI custom properties (variables) */
+:root {
+  --pf-font: 'Outfit', 'Inter', sans-serif;
+  --pf-border-radius: 16px;
+  --pf-shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Pagefind Dark Theme Options */
+:root[data-theme="dark"] {
+  --pf-text: #f3f4f6; /* neutral-100 */
+  --pf-text-secondary: #9ca3af; /* neutral-400 */
+  --pf-text-muted: #6b7280; /* neutral-500 */
+  --pf-background: #121214; /* deep dark card bg */
+  --pf-border: rgba(255, 255, 255, 0.08);
+  --pf-border-focus: #ec4899; /* pink-500 */
+  --pf-mark: #ec4899;
+  --pf-hover: rgba(255, 255, 255, 0.04);
+  --pf-outline-focus: #ec4899;
+}
+
+/* Pagefind Light Theme Options */
+:root[data-theme="light"] {
+  --pf-text: #1f2937; /* neutral-800 */
+  --pf-text-secondary: #4b5563; /* neutral-600 */
+  --pf-text-muted: #9ca3af; /* neutral-400 */
+  --pf-background: #ffffff;
+  --pf-border: rgba(0, 0, 0, 0.08);
+  --pf-border-focus: #ec4899; /* pink-500 */
+  --pf-mark: #ec4899;
+  --pf-hover: rgba(0, 0, 0, 0.03);
+  --pf-outline-focus: #ec4899;
+}
+
+/* Style Pagefind Modal Backdrop to match glassmorphism aesthetics */
+pagefind-modal::backdrop {
+  background: rgba(10, 10, 12, 0.75);
+  backdrop-filter: blur(8px);
+}

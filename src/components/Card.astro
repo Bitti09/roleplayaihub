@@ -45,6 +45,8 @@ const colors = [
 ];
 const colorIndex = name.charCodeAt(0) % colors.length;
 const iconColors = colors[colorIndex];
+
+const cardId = name.replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').toLowerCase();
 ---
 
 <div class="card glass-panel glass-panel-hover overflow-hidden rounded-2xl transition-all duration-300">
@@ -55,7 +57,7 @@ const iconColors = colors[colorIndex];
         <div class={`p-2.5 rounded-xl border flex items-center justify-center shrink-0 ${iconColors}`}>
           <IconComponent class="w-5 h-5" />
         </div>
-        <h3 class="text-lg font-semibold text-base-content group-hover:text-base-content transition-colors">
+        <h3 id={cardId} class="text-lg font-semibold text-base-content group-hover:text-base-content transition-colors scroll-mt-24">
           {name}
         </h3>
       </div>

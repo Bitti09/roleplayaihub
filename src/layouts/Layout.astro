@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { Search, Moon, Sun, Sparkles, BookOpen, Layers } from '@lucide/astro';
+import PagefindConfig from 'astro-pagefind/components/PagefindConfig.astro';
 
 interface Props {
   title: string;
@@ -36,6 +37,9 @@ const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Mode
       };
       document.documentElement.setAttribute('data-theme', getTheme());
     </script>
+
+    <!-- Pagefind Config integration -->
+    <PagefindConfig preload={true} />
   </head>
   <body class="bg-base-300 text-base-content min-h-screen flex flex-col font-sans selection:bg-pink-500/30 selection:text-white">
     
@@ -59,22 +63,9 @@ const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Mode
           </a>
         </div>
 
-        <!-- Search Bar (FMHY style with Ctrl K shortcut) -->
-        <div class="hidden md:flex relative max-w-sm w-full mx-auto">
-          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search class="h-4 w-4 text-neutral-500" />
-          </div>
-          <input
-            type="search"
-            id="global-search"
-            placeholder="Search resources..."
-            class="w-full rounded-xl bg-base-100 pl-9 pr-12 py-1.5 text-sm text-base-content border border-base-content/10 placeholder-base-content/50 focus:outline-none focus:ring-1 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all duration-300"
-          />
-          <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-            <kbd class="pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-base-content/10 bg-base-200 px-1.5 font-mono text-[10px] font-medium text-base-content/60">
-              <span class="text-xs">Ctrl</span>K
-            </kbd>
-          </div>
+        <!-- Search Bar -->
+        <div class="hidden md:block max-w-sm w-full mx-auto">
+          <pagefind-searchbox id="global-search" placeholder="Search resources..."></pagefind-searchbox>
         </div>
 
         <!-- Navigation Links & Icons -->
@@ -147,16 +138,8 @@ const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Mode
       </div>
     </footer>
 
-    <!-- Theme & Ctrl K Script -->
+    <!-- Theme Toggle Script -->
     <script>
-      const searchInput = document.getElementById('global-search') as HTMLInputElement | null;
-      document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-          e.preventDefault();
-          searchInput?.focus();
-        }
-      });
-
       const themeToggle = document.getElementById('theme-toggle');
       themeToggle?.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
