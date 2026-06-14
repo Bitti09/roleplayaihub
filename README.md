@@ -16,34 +16,28 @@ This directory is designed to help you quickly find the right tools and settings
 
 ---
 
-## 🚀 Getting Started
+## ✍️ How to Contribute
 
-### How to Run Locally
+All content on the site is stored in simple, human-readable text files (YAML format) inside the `src/content/` folder. Anyone can easily suggest edits, update parameters, or add new items.
 
-If you want to run the website on your own computer:
-
-1. **Pre-requisites:** Make sure you have [Node.js](https://nodejs.org/) installed.
-2. **Install Dependencies:** Open your terminal inside the project directory and run:
-   ```bash
-   pnpm install
-   ```
-3. **Start Development Server:** Run the following command:
-   ```bash
-   pnpm dev
-   ```
-4. **View the Site:** Open [http://localhost:4321/](http://localhost:4321/) in your web browser!
-
----
-
-## ✍️ How to Add or Edit Resources
-
-All content on the site is stored in simple, human-readable text files (YAML format) inside the `src/content/` folder.
-
-To add a new resource:
+### 1. Adding or Editing Resources
 1. Navigate to the appropriate folder:
    - `src/content/ai-models/` for AI models.
    - `src/content/frontends/` for user interfaces.
    - `src/content/tools/` for other software and tools.
-2. Create a new `.yaml` file (e.g., `my-model.yaml`).
-3. Fill in the resource details (name, description, tags, etc.) using the existing files as examples!
-4. The website will automatically update with your new content.
+2. Create a new `.yaml` file (e.g., `my-model.yaml`) or edit an existing one.
+3. Fill in the resource details (name, description, tags, settings, notes, etc.) using the other files in the same directory as examples!
+
+### 2. Testing Your Changes Locally
+To run the website on your computer and test your edits locally:
+1. Make sure you have [Node.js](https://nodejs.org/) installed.
+2. Open your terminal inside the project directory and run:
+   ```bash
+   pnpm install
+   ```
+3. Start the development server:
+   ```bash
+   pnpm dev
+   ```
+4. Open [http://localhost:4321/](http://localhost:4321/) in your web browser to view your live changes!
+
