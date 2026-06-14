@@ -1,0 +1,8 @@
+name = "roleplayaihub"
+main = "./node_modules/@astrojs/cloudflare/dist/entrypoints/server.js"
+compatibility_date = "2026-06-12"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
