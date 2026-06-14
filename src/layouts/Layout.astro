@@ -6,9 +6,10 @@ import PagefindConfig from 'astro-pagefind/components/PagefindConfig.astro';
 interface Props {
   title: string;
   description?: string;
+  pagefindIgnore?: boolean;
 }
 
-const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Models, Frontends, and Tools" } = Astro.props;
+const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Models, Frontends, and Tools", pagefindIgnore = false } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -41,7 +42,7 @@ const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Mode
     <!-- Pagefind Config integration -->
     <PagefindConfig preload={true} />
   </head>
-  <body class="bg-base-300 text-base-content min-h-screen flex flex-col font-sans selection:bg-pink-500/30 selection:text-white">
+  <body class="bg-base-300 text-base-content min-h-screen flex flex-col font-sans selection:bg-pink-500/30 selection:text-white" data-pagefind-ignore={pagefindIgnore ? "all" : undefined}>
     
     <!-- Navbar -->
     <header class="sticky top-0 z-50 w-full border-b border-base-content/10 bg-base-300/80 backdrop-blur-lg">
