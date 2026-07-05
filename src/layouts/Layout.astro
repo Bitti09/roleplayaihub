@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { Search, Moon, Sun, Sparkles, BookOpen, Layers } from '@lucide/astro';
+import { Moon, Sun, Sparkles, BookOpen, Layers } from '@lucide/astro';
 import PagefindConfig from 'astro-pagefind/components/PagefindConfig.astro';
 
 interface Props {
@@ -27,7 +27,7 @@ const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Mode
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <!-- Theme Script -->
     <script is:inline>
       const getTheme = () => {
@@ -40,7 +40,7 @@ const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Mode
     </script>
 
     <!-- Pagefind Config integration -->
-    <PagefindConfig preload={true} />
+    <PagefindConfig />
   </head>
   <body class="bg-base-300 text-base-content min-h-screen flex flex-col font-sans selection:bg-pink-500/30 selection:text-white" data-pagefind-ignore={pagefindIgnore ? "all" : undefined}>
     
@@ -51,10 +51,10 @@ const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Mode
         <!-- Logo -->
         <div class="flex items-center gap-6 shrink-0">
           <a href="/" class="flex items-center gap-2 group">
-            <span class="p-1.5 rounded-lg bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/20 group-hover:scale-105 transition-all duration-300">
+            <span class="p-1.5 rounded-lg bg-linear-to-tr from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/20 group-hover:scale-105 transition-all duration-300">
               <Sparkles class="w-4 h-4" />
             </span>
-            <span class="font-outfit font-extrabold text-xl tracking-tight bg-gradient-to-r from-base-content via-base-content/90 to-base-content/60 bg-clip-text text-transparent group-hover:text-base-content transition-all">
+            <span class="font-outfit font-extrabold text-xl tracking-tight bg-linear-to-r from-base-content via-base-content/90 to-base-content/60 bg-clip-text text-transparent group-hover:text-base-content transition-all">
               Roleplay AI<span class="text-pink-500 font-medium"> Hub</span>
             </span>
             <!-- v0.0.1 Badge -->
@@ -113,20 +113,20 @@ const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Mode
       </div>
       
       <!-- WIP Alert Bar -->
-      <div class="border-t border-base-content/10 bg-gradient-to-r from-pink-500/10 via-purple-500/5 to-transparent text-xs py-2 text-center text-base-content/80">
+      <div class="border-t border-base-content/10 bg-linear-to-r from-pink-500/10 via-purple-500/5 to-transparent text-xs py-2 text-center text-base-content/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-2 flex-wrap">
           <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider rounded bg-pink-500/20 border border-pink-500/30 text-pink-400 font-outfit">
             WIP
           </span>
           <span class="text-base-content/80 text-[11px] sm:text-xs">
-            This directory is a work in progress. Currently,  all sections are containing no real data.
+            This directory is a work in progress. All listings are <strong class="text-pink-400">placeholder data</strong> used for testing the site design — nothing here is production content.
           </span>
         </div>
       </div>
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-grow">
+    <main class="grow">
       <slot />
     </main>
 
@@ -139,15 +139,9 @@ const { title, description = "Roleplay AI Hub - A directory for Roleplay AI Mode
       </div>
     </footer>
 
-    <!-- Theme Toggle Script -->
+    <!-- Theme Toggle Script (kept in src/scripts/theme.ts) -->
     <script>
-      const themeToggle = document.getElementById('theme-toggle');
-      themeToggle?.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-      });
+      import '../scripts/theme.ts';
     </script>
   </body>
 </html>
