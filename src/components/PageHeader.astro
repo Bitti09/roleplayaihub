@@ -1,5 +1,6 @@
 ---
 import { ChevronRight } from '@lucide/astro';
+import { getIntlayer } from 'intlayer';
 import { getCollectionIcon } from '../lib/collections';
 import { HEADER_ICON_GRADIENT } from '../lib/colors';
 
@@ -9,13 +10,12 @@ interface Props {
   description?: string;
 }
 
-const {
-  collection,
-  title,
-  description = `Discover and filter ${title.toLowerCase()} curated by the community.`,
-} = Astro.props;
+const { collection, title, description } = Astro.props;
 
 const CollectionIcon = getCollectionIcon(collection);
+const { defaultDescription } = getIntlayer('collection');
+const resolvedDescription =
+  description ?? defaultDescription.replace('{collection}', title.toLowerCase());
 ---
 
 <div class="mb-10">
@@ -33,7 +33,7 @@ const CollectionIcon = getCollectionIcon(collection);
         {title}
       </h1>
       <p class="text-sm text-neutral-400 mt-1.5">
-        {description}
+        {resolvedDescription}
       </p>
     </div>
   </div>

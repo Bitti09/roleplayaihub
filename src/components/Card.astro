@@ -1,5 +1,6 @@
 ---
 import { ExternalLink } from '@lucide/astro';
+import { getIntlayer } from 'intlayer';
 import type { ResourceData } from '../content.config';
 import { idFromName } from '../lib/slugify';
 import { colorForName } from '../lib/colors';
@@ -16,6 +17,7 @@ const { name, description, url, tags, icon } = data;
 const cardId = idFromName(name);
 const IconComponent = resolveIcon(icon);
 const iconColors = colorForName(name);
+const { visitSite } = getIntlayer('common');
 ---
 
 <div class="card glass-panel glass-panel-hover overflow-hidden rounded-2xl transition-all duration-300">
@@ -44,7 +46,7 @@ const iconColors = colorForName(name);
           rel="noopener noreferrer"
           class="btn btn-sm btn-outline border-base-content/20 hover:border-pink-500/50 hover:bg-pink-500/5 text-base-content/85 hover:text-base-content rounded-lg flex items-center justify-between w-full mt-1.5"
         >
-          <span>Visit Site</span>
+          <span>{visitSite}</span>
           <ExternalLink class="w-3.5 h-3.5 ml-1 opacity-70" />
         </a>
       )}

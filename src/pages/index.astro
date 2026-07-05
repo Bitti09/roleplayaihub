@@ -15,6 +15,7 @@ import {
 } from '@lucide/astro';
 import { slugify } from '../lib/slugify';
 import { COLOR_PALETTE } from '../lib/colors';
+import { getIntlayer } from 'intlayer';
 
 interface Category {
   title: string;
@@ -24,83 +25,76 @@ interface Category {
   href: string;
 }
 
+const home = getIntlayer('home');
+
 const categories: Category[] = [
   {
-    title: 'Text Models',
-    description:
-      'Explore advanced large language models, chat assistants, and translation engines.',
+    title: home.categoryTextModelsTitle,
+    description: home.categoryTextModelsDescription,
     icon: MessageSquare,
     color: COLOR_PALETTE[6], // rose
-    href: `/ai-models#${slugify('Text Models')}`,
+    href: `/ai-models#${slugify(home.categoryTextModelsTitle)}`,
   },
   {
-    title: 'Image Models',
-    description:
-      'Create stunning visuals using next-generation text-to-image and editing models.',
+    title: home.categoryImageModelsTitle,
+    description: home.categoryImageModelsDescription,
     icon: Image,
     color: COLOR_PALETTE[1], // blue
-    href: `/ai-models#${slugify('Image Models')}`,
+    href: `/ai-models#${slugify(home.categoryImageModelsTitle)}`,
   },
   {
-    title: 'Audio Models',
-    description:
-      'Convert text to high-fidelity speech and run automatic voice recognition.',
+    title: home.categoryAudioModelsTitle,
+    description: home.categoryAudioModelsDescription,
     icon: Mic,
     color: COLOR_PALETTE[7], // violet
-    href: `/ai-models#${slugify('Audio Models')}`,
+    href: `/ai-models#${slugify(home.categoryAudioModelsTitle)}`,
   },
   {
-    title: 'Web Clients',
-    description:
-      'Connect your models to self-hosted, multi-provider web chat interfaces.',
+    title: home.categoryWebClientsTitle,
+    description: home.categoryWebClientsDescription,
     icon: WebIcon,
     color: COLOR_PALETTE[3], // emerald
-    href: `/frontends#${slugify('Web Clients')}`,
+    href: `/frontends#${slugify(home.categoryWebClientsTitle)}`,
   },
   {
-    title: 'Desktop Clients',
-    description:
-      'Beautiful native desktop applications to run and chat with local LLMs offline.',
+    title: home.categoryDesktopClientsTitle,
+    description: home.categoryDesktopClientsDescription,
     icon: Laptop,
     color: COLOR_PALETTE[4], // amber
-    href: `/frontends#${slugify('Desktop Clients')}`,
+    href: `/frontends#${slugify(home.categoryDesktopClientsTitle)}`,
   },
   {
-    title: 'Mobile Clients',
-    description:
-      'Experience roleplay and assistant chat on the go with Android and iOS apps.',
+    title: home.categoryMobileClientsTitle,
+    description: home.categoryMobileClientsDescription,
     icon: Smartphone,
     color: COLOR_PALETTE[5], // cyan
-    href: `/frontends#${slugify('Mobile Clients')}`,
+    href: `/frontends#${slugify(home.categoryMobileClientsTitle)}`,
   },
   {
-    title: 'CLI Clients',
-    description:
-      'Lightweight, developer-first terminal interfaces and TUI chat clients.',
+    title: home.categoryCliClientsTitle,
+    description: home.categoryCliClientsDescription,
     icon: Terminal,
     color: COLOR_PALETTE[0], // pink
-    href: `/frontends#${slugify('CLI Clients')}`,
+    href: `/frontends#${slugify(home.categoryCliClientsTitle)}`,
   },
   {
-    title: 'Inference Servers',
-    description:
-      'Host models locally with KoboldCPP, Ollama, or OpenAI-compatible backends.',
+    title: home.categoryInferenceServersTitle,
+    description: home.categoryInferenceServersDescription,
     icon: Server,
     color: COLOR_PALETTE[8], // indigo
-    href: `/tools#${slugify('Inference Servers')}`,
+    href: `/tools#${slugify(home.categoryInferenceServersTitle)}`,
   },
   {
-    title: 'Development Tools',
-    description:
-      'CLI helpers, database scrapers, lorebook creators, and context managers.',
+    title: home.categoryDevToolsTitle,
+    description: home.categoryDevToolsDescription,
     icon: Settings,
     color: COLOR_PALETTE[9], // teal
-    href: `/tools#${slugify('Development Tools')}`,
+    href: `/tools#${slugify(home.categoryDevToolsTitle)}`,
   },
 ];
 ---
 
-<Layout title="Home" pagefindIgnore={true}>
+<Layout title={home.pageTitle} pagefindIgnore={true}>
   <div>
   <!-- Hero Section -->
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 md:pt-24 md:pb-28">
@@ -109,28 +103,29 @@ const categories: Category[] = [
       <!-- Left Hero Text -->
       <div class="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-xs font-semibold text-neutral-300 mb-6 shadow-sm">
-          <span>June Updates</span> 📝
+          <span>{home.heroBadge}</span> 📝
         </div>
 
         <h1 class="font-outfit font-extrabold text-4xl sm:text-5xl md:text-7xl tracking-tight leading-none">
           <span class="bg-linear-to-r from-white via-neutral-100 to-neutral-400 bg-clip-text text-transparent">
-            Roleplay AI <span class="bg-linear-to-r from-orange-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">Hub</span>
+            {home.heroHeadline.split(' ').slice(0, 2).join(' ')}
+            <span class="bg-linear-to-r from-orange-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">{home.heroHeadline.split(' ').slice(2).join(' ')}</span>
           </span>
         </h1>
 
         <p class="mt-4 text-lg md:text-xl text-neutral-400 font-medium max-w-lg">
-          A collection of AI models, frontends, and tools on the internet!
+          {home.heroTagline}
         </p>
 
         <div class="mt-8 flex flex-wrap justify-center lg:justify-start gap-3">
           <a href="/ai-models" class="btn btn-sm sm:btn-md rounded-full px-5 bg-pink-600 hover:bg-pink-700 border-none text-white shadow-lg shadow-pink-600/20 font-medium">
-            Explore Models
+            {home.ctaExplore}
           </a>
           <a href="/frontends" class="btn btn-sm sm:btn-md rounded-full px-5 btn-neutral font-medium">
-            Frontends
+            {home.ctaFrontends}
           </a>
           <a href="/tools" class="btn btn-sm sm:btn-md rounded-full px-5 btn-neutral font-medium">
-            Tools
+            {home.ctaTools}
           </a>
         </div>
       </div>
@@ -154,7 +149,7 @@ const categories: Category[] = [
     <div class="flex items-center justify-center gap-4 my-8">
       <div class="h-px bg-white/5 grow max-w-xs"></div>
       <span class="text-xs font-semibold tracking-wider text-neutral-500 uppercase flex items-center gap-1.5">
-        Or browse these categories ✨
+        {home.categoriesDivider}
       </span>
       <div class="h-px bg-white/5 grow max-w-xs"></div>
     </div>
@@ -187,5 +182,6 @@ const categories: Category[] = [
         );
       })}
     </div>
+  </div>
   </div>
 </Layout>

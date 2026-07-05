@@ -6,6 +6,7 @@ import {
   TriangleAlert,
   CircleAlert,
 } from '@lucide/astro';
+import { getIntlayer } from 'intlayer';
 import type { ModelData } from '../content.config';
 import { idFromName } from '../lib/slugify';
 import { colorForName } from '../lib/colors';
@@ -44,6 +45,9 @@ const IconComponent = resolveIcon(data.icon);
 const iconColor =
   colorForName(name).split(' ').find((c) => c.startsWith('text-')) ?? 'text-pink-400';
 
+const common = getIntlayer('common');
+const detail = getIntlayer('model-detail');
+
 /**
  * NSFW content-policy pill — visible on every card because content
  * classification is essential for an AI-model hub.
@@ -56,17 +60,17 @@ const nsfwPill: Record<
   { label: string; classes: string; Icon: typeof TriangleAlert }
 > = {
   allowed: {
-    label: 'NSFW Allowed',
+    label: detail.nsfwPillAllowed,
     classes: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400',
     Icon: TriangleAlert,
   },
   limited: {
-    label: 'NSFW Limited',
+    label: detail.nsfwPillLimited,
     classes: 'bg-amber-500/15 border-amber-500/30 text-amber-400',
     Icon: CircleAlert,
   },
   blocked: {
-    label: 'NSFW Blocked',
+    label: detail.nsfwPillBlocked,
     classes: 'bg-red-500/15 border-red-500/30 text-red-400',
     Icon: ShieldCheck,
   },
@@ -122,15 +126,15 @@ const hasSettings =
     <!-- Stats: 3-column key/value (no boxes, label + value plain text) -->
     <dl class="grid grid-cols-3 text-center">
       <div class="flex flex-col gap-0.5 px-1">
-        <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">Context</dt>
+        <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">{common.context}</dt>
         <dd class="text-sm font-bold text-base-content truncate">{context}</dd>
       </div>
       <div class="flex flex-col gap-0.5 px-1 border-x border-base-content/8">
-        <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">Size</dt>
+        <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">{common.size}</dt>
         <dd class="text-sm font-bold text-base-content truncate">{size}</dd>
       </div>
       <div class="flex flex-col gap-0.5 px-1">
-        <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">Format</dt>
+        <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">{common.format}</dt>
         <dd class="text-sm font-bold text-base-content truncate">{format}</dd>
       </div>
     </dl>
@@ -140,7 +144,7 @@ const hasSettings =
     <!-- Features: label + compact capability icons row -->
     {capabilities.length > 0 && (
       <section class="flex flex-col gap-2">
-        <div class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">Features</div>
+        <div class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">{common.features}</div>
         <Capabilities capabilities={capabilities} size="xs" />
       </section>
     )}
@@ -172,7 +176,7 @@ const hasSettings =
       href={`/ai-models/${cardId}`}
       class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 hover:text-pink-200 transition-colors"
     >
-      <span>Details</span>
+      <span>{common.details}</span>
       <span aria-hidden="true">&rarr;</span>
     </a>
     {hasSettings && (
@@ -181,7 +185,7 @@ const hasSettings =
         class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium hover:bg-base-content/5 text-base-content/70 transition-colors"
         onclick={`document.getElementById('modal-${cardId}').showModal()`}
       >
-        <span>Settings</span>
+        <span>{common.settings}</span>
       </button>
     )}
   </div>

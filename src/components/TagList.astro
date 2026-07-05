@@ -1,16 +1,19 @@
 ---
+import { getIntlayer } from 'intlayer';
+
 interface Props {
   tags: string[];
   label?: string;
 }
 
-const { tags, label = 'Tags' } = Astro.props;
+const { tags, label } = Astro.props;
+const { tags: defaultLabel } = getIntlayer('common');
 ---
 
 {tags.length > 0 && (
   <div class="flex items-center gap-2">
     <span class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider shrink-0">
-      {label}:
+      {label ?? defaultLabel}:
     </span>
     <div class="flex flex-wrap gap-1.5">
       {tags.map((tag) => (

@@ -8,6 +8,7 @@ import {
   User,
 } from '@lucide/astro';
 import { getCollection } from 'astro:content';
+import { getIntlayer } from 'intlayer';
 
 import { idFromName } from '../../lib/slugify';
 import { colorForName } from '../../lib/colors';
@@ -30,6 +31,9 @@ const data: ModelData = model.data;
 const IconComponent = resolveIcon(data.icon);
 const iconColors = colorForName(data.name);
 
+const common = getIntlayer('common');
+const detail = getIntlayer('model-detail');
+
 // Build the list of stat cells. Anything with `undefined` value is skipped so
 // the grid only shows fields the YAML actually filled in. `description`
 // (optional) renders as a muted subtitle below the value - used today by
@@ -50,32 +54,34 @@ const nsfwTone: Record<NsfwTier, string> = {
  * that some models are more permissive than others.
  */
 const nsfwDescription: Record<NsfwTier, string> = {
-  blocked:
-    "Built-in safety refuses to generate explicit sexual or graphic content.",
-  limited:
-    "Permits some mature content; behavior depends on the host (e.g. open weights minus their guardrails).",
-  allowed:
-    "Generates mature content without built-in restrictions or refusals.",
+  blocked: detail.nsfwBlockedDescription,
+  limited: detail.nsfwLimitedDescription,
+  allowed: detail.nsfwAllowedDescription,
+};
+
+const nsfwLabels: Record<NsfwTier, string> = {
+  blocked: detail.nsfwBlocked,
+  limited: detail.nsfwLimited,
+  allowed: detail.nsfwAllowed,
 };
 
 const nsfwValue: NsfwTier = data.nsfw ?? 'blocked';
-const nsfwLabel =
-  nsfwValue.charAt(0).toUpperCase() + nsfwValue.slice(1);
+const nsfwLabel = nsfwLabels[nsfwValue];
 
 const stats: Stat[] = [
-  { label: 'Context Window', value: data.context },
-  { label: 'Format', value: data.format },
-  { label: 'Size', value: data.size },
-  { label: 'License', value: data.license },
+  { label: detail.statContextWindow, value: data.context },
+  { label: detail.statFormat, value: data.format },
+  { label: detail.statSize, value: data.size },
+  { label: detail.statLicense, value: data.license },
   {
-    label: 'Content Policy',
+    label: detail.statContentPolicy,
     value: nsfwLabel,
     tone: nsfwTone[nsfwValue],
     description: nsfwDescription[nsfwValue],
   },
-  { label: 'Base Model', value: data.baseModel ?? '—' },
-  { label: 'Released', value: data.released ?? '—' },
-  { label: 'Author', value: data.author },
+  { label: detail.statBaseModel, value: data.baseModel ?? '—' },
+  { label: detail.statReleased, value: data.released ?? '—' },
+  { label: detail.statAuthor, value: data.author },
 ].filter((s) => s.value && s.value !== '—');
 
 // Settings: same display order as the modal on the card.
@@ -192,15 +198,20 @@ const show = {
   embedding: rows.some((r) => r.embedding !== null),
 };
 const hasAnyNotes = rows.some((r) => r.notes !== null);
+
+const providerCountLabel =
+  rows.length === 1
+    ? detail.pricingProviderSingular
+    : detail.pricingProviderPlural.replace('{count}', String(rows.length));
 ---
 
 <Layout title={data.name}>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <!-- Breadcrumbs -->
     <div class="text-xs text-neutral-500 flex items-center gap-1.5 mb-4">
-      <a href="/" class="hover:text-neutral-300 transition-colors">Home</a>
+      <a href="/" class="hover:text-neutral-300 transition-colors">{detail.breadcrumbHome}</a>
       <ChevronRight class="w-3 h-3 opacity-60" />
-      <a href="/ai-models" class="hover:text-neutral-300 transition-colors">AI Models</a>
+      <a href="/ai-models" class="hover:text-neutral-300 transition-colors">{detail.breadcrumbCollection}</a>
       <ChevronRight class="w-3 h-3 opacity-60" />
       <span class="text-neutral-400 truncate">{data.name}</span>
     </div>
@@ -239,7 +250,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
             class="btn btn-sm btn-ghost rounded-lg border border-base-content/10 text-base-content/85 hover:text-base-content"
           >
             <ArrowLeft class="w-4 h-4" />
-            <span>Back</span>
+            <span>{common.back}</span>
           </a>
           {data.url && (
             <a
@@ -248,7 +259,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
               rel="noopener noreferrer"
               class="btn btn-sm bg-pink-600 hover:bg-pink-700 border-none text-white rounded-lg shadow-lg shadow-pink-600/20"
             >
-              <span>Try Model</span>
+              <span>{common.tryModel}</span>
               <ExternalLink class="w-3.5 h-3.5" />
             </a>
           )}
@@ -291,7 +302,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
     {data.capabilities.length > 0 && (
       <div class="glass-panel rounded-2xl p-6 mt-6">
         <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
-          Capabilities
+          {detail.sectionCapabilities}
         </div>
         <Capabilities capabilities={data.capabilities} />
       </div>
@@ -301,7 +312,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
     {data.tags.length > 0 && (
       <div class="glass-panel rounded-2xl p-6 mt-6">
         <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
-          Tags
+          {detail.sectionTags}
         </div>
         <TagList tags={data.tags} />
       </div>
@@ -311,13 +322,13 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
     {hasSettings && (
       <div class="glass-panel rounded-2xl p-6 mt-6">
         <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
-          Recommended Parameters
+          {detail.sectionParameters}
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
           {temperature !== undefined && (
             <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
               <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
-                Temperature
+                {detail.paramTemperature}
               </span>
               <span class="font-mono font-semibold text-base-content">{temperature}</span>
             </div>
@@ -325,7 +336,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
           {settings?.min_p !== undefined && (
             <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
               <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
-                Min P
+                {detail.paramMinP}
               </span>
               <span class="font-mono font-semibold text-base-content">{settings.min_p}</span>
             </div>
@@ -333,7 +344,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
           {settings?.rep_pen !== undefined && (
             <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
               <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
-                Rep. Penalty
+                {detail.paramRepPen}
               </span>
               <span class="font-mono font-semibold text-base-content">{settings.rep_pen}</span>
             </div>
@@ -341,7 +352,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
           {settings?.top_p !== undefined && (
             <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
               <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
-                Top P
+                {detail.paramTopP}
               </span>
               <span class="font-mono font-semibold text-base-content">{settings.top_p}</span>
             </div>
@@ -349,7 +360,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
           {settings?.top_k !== undefined && (
             <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
               <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
-                Top K
+                {detail.paramTopK}
               </span>
               <span class="font-mono font-semibold text-base-content">{settings.top_k}</span>
             </div>
@@ -357,7 +368,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
           {settings?.presence_penalty !== undefined && (
             <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
               <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
-                Presence Pen.
+                {detail.paramPresence}
               </span>
               <span class="font-mono font-semibold text-base-content">{settings.presence_penalty}</span>
             </div>
@@ -365,7 +376,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
           {settings?.frequency_penalty !== undefined && (
             <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
               <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
-                Frequency Pen.
+                {detail.paramFrequency}
               </span>
               <span class="font-mono font-semibold text-base-content">{settings.frequency_penalty}</span>
             </div>
@@ -378,7 +389,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
     {data.notes && (
       <div class="glass-panel rounded-2xl p-6 mt-6">
         <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
-          📝 Notes
+          {detail.sectionNotes}
         </div>
         <div class="text-sm text-base-content/85 leading-relaxed whitespace-pre-wrap">
           {data.notes}
@@ -392,10 +403,10 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
       <div class="glass-panel rounded-2xl p-6 mt-6">
         <div class="flex items-baseline justify-between mb-4 gap-2">
           <div class="text-xs font-bold uppercase tracking-wider text-pink-500">
-            Pricing
+            {detail.sectionPricing}
           </div>
           <div class="text-[10px] font-bold uppercase tracking-wider text-base-content/45">
-            {rows.length} provider{rows.length === 1 ? '' : 's'}
+            {providerCountLabel}
           </div>
         </div>
 
@@ -403,17 +414,17 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
           <table class="table table-zebra w-full text-xs">
             <thead>
               <tr class="text-base-content/55 uppercase tracking-wider text-[10px]">
-                <th class="bg-transparent">Provider</th>
-                {show.textInput && <th class="bg-transparent text-right">In / 1k</th>}
-                {show.textOutput && <th class="bg-transparent text-right">Out / 1k</th>}
-                {show.cachedInput && <th class="bg-transparent text-right">Cached / 1k</th>}
-                {show.image && <th class="bg-transparent text-right">Image</th>}
-                {show.audioPerSec && <th class="bg-transparent text-right">Audio / sec</th>}
-                {show.audioPerMin && <th class="bg-transparent text-right">Audio / min</th>}
-                {show.videoPerSec && <th class="bg-transparent text-right">Video / sec</th>}
-                {show.videoPerMin && <th class="bg-transparent text-right">Video / min</th>}
-                {show.embedding && <th class="bg-transparent text-right">Embedding / 1k</th>}
-                {hasAnyNotes && <th class="bg-transparent">Notes</th>}
+                <th class="bg-transparent">{detail.colProvider}</th>
+                {show.textInput && <th class="bg-transparent text-right">{detail.colTextInput}</th>}
+                {show.textOutput && <th class="bg-transparent text-right">{detail.colTextOutput}</th>}
+                {show.cachedInput && <th class="bg-transparent text-right">{detail.colCachedInput}</th>}
+                {show.image && <th class="bg-transparent text-right">{detail.colImage}</th>}
+                {show.audioPerSec && <th class="bg-transparent text-right">{detail.colAudioPerSec}</th>}
+                {show.audioPerMin && <th class="bg-transparent text-right">{detail.colAudioPerMin}</th>}
+                {show.videoPerSec && <th class="bg-transparent text-right">{detail.colVideoPerSec}</th>}
+                {show.videoPerMin && <th class="bg-transparent text-right">{detail.colVideoPerMin}</th>}
+                {show.embedding && <th class="bg-transparent text-right">{detail.colEmbedding}</th>}
+                {hasAnyNotes && <th class="bg-transparent">{detail.colNotes}</th>}
               </tr>
             </thead>
             <tbody>
@@ -423,7 +434,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
                     <div class="flex items-center gap-2 min-w-0">
                       <span class="font-bold font-outfit text-base-content">{r.name}</span>
                       {r.isFree && (
-                        <span class="badge badge-success badge-xs font-bold">FREE</span>
+                        <span class="badge badge-success badge-xs font-bold">{detail.freeBadge}</span>
                       )}
                     </div>
                     {r.url && (
@@ -433,7 +444,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
                         rel="noopener noreferrer"
                         class="inline-flex items-center gap-1 text-[10px] text-primary hover:underline mt-0.5"
                       >
-                        <span>pricing page</span>
+                        <span>{detail.pricingPageLink}</span>
                         <ExternalLink class="w-2.5 h-2.5" />
                       </a>
                     )}
@@ -477,7 +488,7 @@ const hasAnyNotes = rows.some((r) => r.notes !== null);
         </div>
 
         <p class="text-[10px] text-base-content/40 mt-4">
-          Prices are illustrative and may have changed since this entry was last reviewed. Always confirm with the provider before relying on them.
+          {detail.pricingDisclaimer}
         </p>
       </div>
     )}
