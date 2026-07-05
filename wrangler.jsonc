@@ -1,0 +1,22 @@
+{
+  "name": "roleplayaihub",
+  "compatibility_date": "2026-06-12",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "roleplayaihub.gg",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.roleplayaihub.gg",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "./dist/client",
+    "not_found_handling": "404-page"
+  }
+}
