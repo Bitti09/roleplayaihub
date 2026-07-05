@@ -1,0 +1,251 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {
+  ChevronRight,
+  ArrowLeft,
+  ExternalLink,
+  Calendar,
+  User,
+} from '@lucide/astro';
+import { getCollection } from 'astro:content';
+
+import { idFromName } from '../../lib/slugify';
+import { colorForName } from '../../lib/colors';
+import { resolveIcon } from '../../lib/icons';
+import TagList from '../../components/TagList.astro';
+import Capabilities from '../../components/Capabilities.astro';
+import type { ModelData } from '../../content.config';
+
+export async function getStaticPaths() {
+  const models = await getCollection('ai-models');
+  return models.map((model) => ({
+    params: { slug: idFromName(model.data.name) },
+    props: { model },
+  }));
+}
+
+const { model } = Astro.props;
+const data: ModelData = model.data;
+
+const IconComponent = resolveIcon(data.icon);
+const iconColors = colorForName(data.name);
+
+// Build the list of stat cells. Anything with `undefined` value is skipped so
+// the grid only shows fields the YAML actually filled in.
+type Stat = { label: string; value: string; tone?: string };
+
+const nsfwTone: Record<NonNullable<ModelData['nsfw']>, string> = {
+  allowed: 'text-emerald-400',
+  limited: 'text-amber-400',
+  blocked: 'text-red-400',
+};
+
+const stats: Stat[] = [
+  { label: 'Context Window', value: data.context },
+  { label: 'Format', value: data.format },
+  { label: 'Size', value: data.size },
+  { label: 'License', value: data.license },
+  {
+    label: 'Content Policy',
+    value: (data.nsfw ?? 'blocked').charAt(0).toUpperCase() + (data.nsfw ?? 'blocked').slice(1),
+    tone: nsfwTone[data.nsfw ?? 'blocked'],
+  },
+  { label: 'Base Model', value: data.baseModel ?? '—' },
+  { label: 'Released', value: data.released ?? '—' },
+  { label: 'Author', value: data.author },
+].filter((s) => s.value && s.value !== '—');
+
+// Settings: same display order as the modal on the card.
+const settings = data.settings;
+const temperature = data.temperature;
+const hasSettings =
+  temperature !== undefined ||
+  (settings !== undefined &&
+    Object.values(settings).some((v) => v !== undefined));
+---
+
+<Layout title={data.name}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Breadcrumbs -->
+    <div class="text-xs text-neutral-500 flex items-center gap-1.5 mb-4">
+      <a href="/" class="hover:text-neutral-300 transition-colors">Home</a>
+      <ChevronRight class="w-3 h-3 opacity-60" />
+      <a href="/ai-models" class="hover:text-neutral-300 transition-colors">AI Models</a>
+      <ChevronRight class="w-3 h-3 opacity-60" />
+      <span class="text-neutral-400 truncate">{data.name}</span>
+    </div>
+
+    <!-- Header card -->
+    <div class="glass-panel rounded-2xl p-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class={`p-3 rounded-xl border flex items-center justify-center shrink-0 ${iconColors}`}>
+            <IconComponent class="w-6 h-6" />
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-bold font-outfit text-base-content truncate">
+              {data.name}
+            </h1>
+            <div class="flex flex-wrap items-center gap-2.5 text-xs text-base-content/60 mt-1">
+              <span class="inline-flex items-center gap-1">
+                <User class="w-3 h-3 opacity-60" />
+                {data.author}
+              </span>
+              {data.released && (
+                <>
+                  <span class="opacity-40">•</span>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-pink-500/20 bg-pink-500/5 text-pink-400 font-semibold">
+                    <Calendar class="w-3 h-3" />
+                    {data.released}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2 shrink-0">
+          <a
+            href="/ai-models"
+            class="btn btn-sm btn-ghost rounded-lg border border-base-content/10 text-base-content/85 hover:text-base-content"
+          >
+            <ArrowLeft class="w-4 h-4" />
+            <span>Back</span>
+          </a>
+          {data.url && (
+            <a
+              href={data.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-sm bg-pink-600 hover:bg-pink-700 border-none text-white rounded-lg shadow-lg shadow-pink-600/20"
+            >
+              <span>Try Model</span>
+              <ExternalLink class="w-3.5 h-3.5" />
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="mt-6 glass-panel rounded-2xl p-6">
+      <p class="text-sm text-base-content/85 leading-relaxed">
+        {data.description}
+      </p>
+    </div>
+
+    <!-- Stats grid -->
+    {stats.length > 0 && (
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-6">
+        {stats.map((stat) => (
+          <div class="glass-panel rounded-xl p-4 flex flex-col gap-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+              {stat.label}
+            </div>
+            <div class={`text-base sm:text-lg font-bold font-outfit truncate ${stat.tone ?? 'text-base-content'}`}>
+              {stat.value}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <!-- Capabilities -->
+    {data.capabilities.length > 0 && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
+          Capabilities
+        </div>
+        <Capabilities capabilities={data.capabilities} />
+      </div>
+    )}
+
+    <!-- Tags (free-form) -->
+    {data.tags.length > 0 && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
+          Tags
+        </div>
+        <TagList tags={data.tags} />
+      </div>
+    )}
+
+    <!-- Recommended Parameters -->
+    {hasSettings && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
+          Recommended Parameters
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+          {temperature !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+                Temperature
+              </span>
+              <span class="font-mono font-semibold text-base-content">{temperature}</span>
+            </div>
+          )}
+          {settings?.min_p !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+                Min P
+              </span>
+              <span class="font-mono font-semibold text-base-content">{settings.min_p}</span>
+            </div>
+          )}
+          {settings?.rep_pen !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+                Rep. Penalty
+              </span>
+              <span class="font-mono font-semibold text-base-content">{settings.rep_pen}</span>
+            </div>
+          )}
+          {settings?.top_p !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+                Top P
+              </span>
+              <span class="font-mono font-semibold text-base-content">{settings.top_p}</span>
+            </div>
+          )}
+          {settings?.top_k !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+                Top K
+              </span>
+              <span class="font-mono font-semibold text-base-content">{settings.top_k}</span>
+            </div>
+          )}
+          {settings?.presence_penalty !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+                Presence Pen.
+              </span>
+              <span class="font-mono font-semibold text-base-content">{settings.presence_penalty}</span>
+            </div>
+          )}
+          {settings?.frequency_penalty !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+                Frequency Pen.
+              </span>
+              <span class="font-mono font-semibold text-base-content">{settings.frequency_penalty}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
+    <!-- Notes -->
+    {data.notes && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
+          📝 Notes
+        </div>
+        <div class="text-sm text-base-content/85 leading-relaxed whitespace-pre-wrap">
+          {data.notes}
+        </div>
+      </div>
+    )}
+  </div>
+</Layout>

@@ -1,95 +1,47 @@
 ---
-import {
-  MessageSquare, Brain, Bot, Image, Mic, Layout, Globe,
-  Laptop, Terminal, User, Server, Settings, Shield, Database,
-  ExternalLink
-} from '@lucide/astro';
+import { ExternalLink } from '@lucide/astro';
+import type { ResourceData } from '../content.config';
+import { idFromName } from '../lib/slugify';
+import { colorForName } from '../lib/colors';
+import { resolveIcon } from '../lib/icons';
+import TagList from './TagList.astro';
 
 interface Props {
-  name: string;
-  description: string;
-  url?: string;
-  tags?: string[];
-  icon?: string;
+  data: ResourceData;
 }
 
-const { name, description, url, tags = [], icon = 'globe' } = Astro.props;
+const { data } = Astro.props;
+const { name, description, url, tags, icon } = data;
 
-const iconMap: Record<string, any> = {
-  'message-square': MessageSquare,
-  'brain': Brain,
-  'bot': Bot,
-  'image': Image,
-  'mic': Mic,
-  'layout': Layout,
-  'globe': Globe,
-  'laptop': Laptop,
-  'terminal': Terminal,
-  'user': User,
-  'server': Server,
-  'settings': Settings,
-  'shield': Shield,
-  'database': Database,
-};
-
-const IconComponent = iconMap[icon] || Globe;
-
-// Assign a color theme based on name hashes to make the card icons look colorful like the screenshot
-const colors = [
-  'text-pink-500 bg-pink-500/10 border-pink-500/20',
-  'text-blue-500 bg-blue-500/10 border-blue-500/20',
-  'text-purple-500 bg-purple-500/10 border-purple-500/20',
-  'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
-  'text-amber-500 bg-amber-500/10 border-amber-500/20',
-  'text-cyan-500 bg-cyan-500/10 border-cyan-500/20',
-];
-const colorIndex = name.charCodeAt(0) % colors.length;
-const iconColors = colors[colorIndex];
-
-const cardId = name.replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').toLowerCase();
+const cardId = idFromName(name);
+const IconComponent = resolveIcon(icon);
+const iconColors = colorForName(name);
 ---
 
 <div class="card glass-panel glass-panel-hover overflow-hidden rounded-2xl transition-all duration-300">
   <div class="card-body p-6 flex flex-col justify-between h-full gap-4">
     <div>
-      <!-- Icon & Title -->
       <div class="flex items-center gap-3.5">
         <div class={`p-2.5 rounded-xl border flex items-center justify-center shrink-0 ${iconColors}`}>
           <IconComponent class="w-5 h-5" />
         </div>
-        <h3 id={cardId} class="text-lg font-semibold text-base-content group-hover:text-base-content transition-colors scroll-mt-24">
+        <h3 id={cardId} class="text-lg font-semibold text-base-content transition-colors scroll-mt-24">
           {name}
         </h3>
       </div>
-      
-      <!-- Description -->
       <p class="text-sm text-base-content/70 mt-4 leading-relaxed line-clamp-3">
         {description}
       </p>
     </div>
 
-    <!-- Tags and Action -->
     <div class="flex flex-col gap-3.5 mt-2">
-      <!-- Tags -->
-      {tags.length > 0 && (
-        <div class="flex items-center gap-2">
-          <span class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider shrink-0">Tags:</span>
-          <div class="flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
-              <span class="badge badge-sm bg-base-100 border-base-content/10 text-base-content/70 rounded px-2">
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+      <TagList tags={tags} />
 
-      <!-- Link -->
       {url && (
-        <a 
-          href={url} 
-          target="_blank" 
-          rel="noopener noreferrer" 
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
           class="btn btn-sm btn-outline border-base-content/20 hover:border-pink-500/50 hover:bg-pink-500/5 text-base-content/85 hover:text-base-content rounded-lg flex items-center justify-between w-full mt-1.5"
         >
           <span>Visit Site</span>

@@ -1,0 +1,40 @@
+---
+import { ChevronRight } from '@lucide/astro';
+import { getCollectionIcon } from '../lib/collections';
+import { HEADER_ICON_GRADIENT } from '../lib/colors';
+
+interface Props {
+  collection: string;
+  title: string;
+  description?: string;
+}
+
+const {
+  collection,
+  title,
+  description = `Discover and filter ${title.toLowerCase()} curated by the community.`,
+} = Astro.props;
+
+const CollectionIcon = getCollectionIcon(collection);
+---
+
+<div class="mb-10">
+  <div class="text-xs text-neutral-500 flex items-center gap-1.5 mb-3">
+    <a href="/" class="hover:text-neutral-300 transition-colors">Home</a>
+    <ChevronRight class="w-3 h-3 opacity-60" />
+    <span class="text-neutral-400 capitalize">{collection.replace('-', ' ')}</span>
+  </div>
+  <div class="flex items-center gap-4">
+    <div class={`p-3 rounded-2xl border ${HEADER_ICON_GRADIENT}`}>
+      <CollectionIcon class="w-7 h-7" />
+    </div>
+    <div>
+      <h1 class="font-outfit font-extrabold text-3xl sm:text-4xl text-neutral-100">
+        {title}
+      </h1>
+      <p class="text-sm text-neutral-400 mt-1.5">
+        {description}
+      </p>
+    </div>
+  </div>
+</div>

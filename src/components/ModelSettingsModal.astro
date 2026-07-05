@@ -1,0 +1,51 @@
+---
+import type { ModelData } from '../content.config';
+
+interface Props {
+  name: string;
+  cardId: string;
+  data: ModelData;
+}
+
+const { name, cardId, data } = Astro.props;
+const { temperature, settings } = data;
+
+/**
+ * Build the list of (label, value) pairs we want to surface, preserving
+ * display order. Anything `undefined` is filtered out so the modal only
+ * shows parameters the YAML actually specified.
+ */
+const SETTINGS_ORDER: Array<{ key: string; label: string; value: number | undefined }> = [
+  { key: 'temperature', label: 'Temperature', value: temperature },
+  { key: 'min_p', label: 'Min P', value: settings?.min_p },
+  { key: 'rep_pen', label: 'Rep. Penalty', value: settings?.rep_pen },
+  { key: 'top_p', label: 'Top P', value: settings?.top_p },
+  { key: 'top_k', label: 'Top K', value: settings?.top_k },
+  { key: 'presence_penalty', label: 'Presence Pen.', value: settings?.presence_penalty },
+  { key: 'frequency_penalty', label: 'Frequency Pen.', value: settings?.frequency_penalty },
+];
+
+const activeSettings = SETTINGS_ORDER.filter((s) => s.value !== undefined);
+const hasSettings = activeSettings.length > 0;
+---
+
+{hasSettings && (
+  <dialog id={`modal-${cardId}`} class="modal modal-bottom sm:modal-middle bg-black/60 backdrop-blur-xs">
+    <div class="modal-box bg-base-300 border border-base-content/10 rounded-2xl max-w-sm p-6 relative">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-base-content/70 hover:text-base-content">✕</button>
+      </form>
+      <h3 class="font-outfit font-bold text-lg text-base-content">Recommended Parameters</h3>
+      <p class="text-[10px] font-bold text-pink-500 uppercase tracking-wider mt-0.5">For {name}</p>
+
+      <div class="grid grid-cols-2 gap-x-4 gap-y-2.5 mt-5 text-xs text-base-content/70 border-t border-base-content/10 pt-4">
+        {activeSettings.map(({ label, value }) => (
+          <div class="flex items-center justify-between py-1 border-b border-base-content/5">
+            <span class="opacity-70">{label}</span>
+            <span class="font-mono font-semibold text-base-content/90">{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </dialog>
+)}

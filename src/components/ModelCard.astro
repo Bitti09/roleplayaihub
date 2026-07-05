@@ -1,233 +1,190 @@
 ---
-import { ExternalLink, Calendar, User, HelpCircle, Layers } from '@lucide/astro';
-
-interface Settings {
-  min_p?: number;
-  rep_pen?: number;
-  top_p?: number;
-  top_k?: number;
-  presence_penalty?: number;
-  frequency_penalty?: number;
-}
+import {
+  Calendar,
+  User,
+  ShieldCheck,
+  TriangleAlert,
+  CircleAlert,
+} from '@lucide/astro';
+import type { ModelData } from '../content.config';
+import { idFromName } from '../lib/slugify';
+import { colorForName } from '../lib/colors';
+import { resolveIcon } from '../lib/icons';
+import Capabilities from './Capabilities.astro';
+import ModelSettingsModal from './ModelSettingsModal.astro';
 
 interface Props {
-  name: string;
-  author?: string;
-  released?: string;
-  format?: string;
-  size?: string;
-  description: string;
-  context?: string;
-  temperature?: number;
-  settings?: Settings;
-  baseModel?: string;
-  base?: boolean;
-  nsfw?: 'yes' | 'limited' | 'no';
-  license?: string;
-  notes?: string;
-  url?: string;
-  tags?: string[];
+  data: ModelData;
 }
 
-const { 
-  name, 
-  author = 'Unknown', 
-  released, 
-  format = 'GGUF', 
-  size = 'Unknown', 
-  description, 
-  context = '8k', 
-  temperature, 
-  settings = {}, 
-  baseModel,
-  base = false,
-  nsfw = 'no',
+const { data } = Astro.props;
+
+const {
+  name,
+  author,
+  released,
+  description,
+  size,
+  format,
+  context,
   license,
-  notes,
-  url,
-  tags = [] 
-} = Astro.props;
+  nsfw,
+  capabilities,
+  settings,
+  temperature,
+} = data;
 
-const cardId = name.replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').toLowerCase();
+const cardId = idFromName(name);
+const IconComponent = resolveIcon(data.icon);
 
-// Filter settings to only show defined values
-const activeSettings = Object.entries({
-  'Temperature': temperature,
-  'Min P': settings?.min_p,
-  'Rep. Penalty': settings?.rep_pen,
-  'Top P': settings?.top_p,
-  'Top K': settings?.top_k,
-  'Presence Pen.': settings?.presence_penalty,
-  'Frequency Pen.': settings?.frequency_penalty,
-}).filter(([_, val]) => val !== undefined);
+/**
+ * Pull the `text-*` class out of the palette so we can paint the bare icon
+ * (no colored tile around it anymore).
+ */
+const iconColor =
+  colorForName(name).split(' ').find((c) => c.startsWith('text-')) ?? 'text-pink-400';
 
-const hasSettings = activeSettings.length > 0;
+/**
+ * NSFW content-policy pill — visible on every card because content
+ * classification is essential for an AI-model hub.
+ * The visible label self-describes (subject + state); the pill itself acts as
+ * the accessible name, so we deliberately skip a redundant aria-label.
+ */
+type NsfwValue = NonNullable<ModelData['nsfw']>;
+const nsfwPill: Record<
+  NsfwValue,
+  { label: string; classes: string; Icon: typeof TriangleAlert }
+> = {
+  allowed: {
+    label: 'NSFW Allowed',
+    classes: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400',
+    Icon: TriangleAlert,
+  },
+  limited: {
+    label: 'NSFW Limited',
+    classes: 'bg-amber-500/15 border-amber-500/30 text-amber-400',
+    Icon: CircleAlert,
+  },
+  blocked: {
+    label: 'NSFW Blocked',
+    classes: 'bg-red-500/15 border-red-500/30 text-red-400',
+    Icon: ShieldCheck,
+  },
+};
+const nsfwInfo = nsfwPill[nsfw ?? 'blocked'];
 
-// Filter out tags that duplicate the size, format, or nsfw state (case-insensitive)
-const filteredTags = tags.filter(tag => 
-  tag.toLowerCase() !== size.toLowerCase() && 
-  tag.toLowerCase() !== format.toLowerCase() &&
-  tag.toLowerCase() !== 'nsfw' &&
-  tag.toLowerCase() !== 'sfw'
-);
+/**
+ * Whether the model has any recommended parameters to surface in the modal.
+ * Drives the conditional "Settings" footer button.
+ */
+const hasSettings =
+  temperature !== undefined ||
+  (settings !== undefined && Object.values(settings).some((v) => v !== undefined));
 ---
 
-<div class="card glass-panel glass-panel-hover overflow-hidden rounded-2xl transition-all duration-300">
-  <div class="card-body p-6 flex flex-col justify-between h-full gap-4.5">
-    <div>
-      <!-- Header -->
-      <div class="flex flex-col gap-2">
-        <h3 id={cardId} class="text-xl font-bold text-base-content font-outfit scroll-mt-24">
-          {name}
+<article
+  class="card glass-panel overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-[0_0_30px_-5px] hover:shadow-pink-500/20 flex flex-col"
+>
+  <div class="px-5 pt-5 pb-4 flex flex-col gap-3.5 grow">
+    <!-- Header: small icon + name on top, slug id + NSFW pill below -->
+    <header class="flex items-start gap-2.5 min-w-0">
+      <IconComponent class={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} aria-hidden="true" />
+      <div class="min-w-0 flex-1">
+        <h3
+          id={cardId}
+          class="text-lg font-bold text-base-content font-outfit scroll-mt-24 truncate leading-tight"
+        >
+          <a href={`/ai-models/${cardId}`} class="hover:text-pink-400 transition-colors">
+            {name}
+          </a>
         </h3>
-        <!-- Release Badge & Author Name -->
-        <div class="flex flex-wrap items-center gap-2.5 text-xs text-base-content/70">
-          {released && (
-            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md border border-pink-500/20 bg-pink-500/5 text-pink-400 font-semibold">
-              <Calendar class="w-3 h-3" />
-              {released}
-            </span>
-          )}
-          <span class="inline-flex items-center gap-1">
-            <User class="w-3 h-3 opacity-60" />
-            by <span class="text-base-content/80 font-medium">{author}</span>
+        <div class="flex items-center gap-2 mt-1 flex-wrap">
+          <div class="text-[11px] text-base-content/40 font-mono truncate">{cardId}</div>
+          <span
+            class={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${nsfwInfo.classes}`}
+            role="status"
+          >
+            <nsfwInfo.Icon class="w-3 h-3" aria-hidden="true" />
+            {nsfwInfo.label}
           </span>
         </div>
       </div>
+    </header>
 
-      <!-- Body Description -->
-      <p class="text-sm text-base-content/70 mt-4 leading-relaxed line-clamp-3">
-        {description}
-      </p>
+    <!-- Description -->
+    <p class="text-sm text-base-content/70 leading-relaxed line-clamp-3">
+      {description}
+    </p>
 
-      <!-- First Row of Boxes (Metadata: Base, Type, NSFW) below description -->
-      <div class="grid grid-cols-3 gap-2.5 mt-5">
-        <!-- Base -->
-        <div class="bg-base-100/50 border border-base-content/10 rounded-xl p-2.5 text-center flex flex-col justify-center min-h-[3.75rem]">
-          <div class="text-[9px] font-bold text-base-content/50 uppercase tracking-wider">Base</div>
-          <div class="text-xs font-extrabold text-base-content/90 mt-1 truncate">
-            {base ? (
-              <span class="text-emerald-400">Base Model</span>
-            ) : baseModel ? (
-              baseModel
-            ) : (
-              <span class="text-base-content/30 font-normal italic">None</span>
-            )}
-          </div>
-        </div>
-        <!-- Type -->
-        <div class="bg-base-100/50 border border-base-content/10 rounded-xl p-2.5 text-center flex flex-col justify-center min-h-[3.75rem]">
-          <div class="text-[9px] font-bold text-base-content/50 uppercase tracking-wider">Type</div>
-          <div class="text-xs font-extrabold text-base-content/90 mt-1 truncate">
-            {license ? license : <span class="text-base-content/30 font-normal italic">Unknown</span>}
-          </div>
-        </div>
-        <!-- NSFW -->
-        <div class="bg-base-100/50 border border-base-content/10 rounded-xl p-2.5 text-center flex flex-col justify-center min-h-[3.75rem]">
-          <div class="text-[9px] font-bold text-base-content/50 uppercase tracking-wider">NSFW</div>
-          <div class="text-xs font-extrabold mt-1">
-            {nsfw === 'yes' && <span class="text-red-400">Yes</span>}
-            {nsfw === 'limited' && <span class="text-amber-400">Limited</span>}
-            {nsfw === 'no' && <span class="text-blue-400">No</span>}
-          </div>
-        </div>
+    <!-- Section divider -->
+    <hr class="border-base-content/10 m-0" />
+
+    <!-- Stats: 3-column key/value (no boxes, label + value plain text) -->
+    <dl class="grid grid-cols-3 text-center">
+      <div class="flex flex-col gap-0.5 px-1">
+        <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">Context</dt>
+        <dd class="text-sm font-bold text-base-content truncate">{context}</dd>
       </div>
-
-      <!-- Second Row of Boxes (Technical Specs: Size, Format, Context) below description -->
-      <div class="grid grid-cols-3 gap-2.5 mt-2.5">
-        <!-- Size -->
-        <div class="bg-base-100/50 border border-base-content/10 rounded-xl p-2.5 text-center">
-          <div class="text-[10px] font-bold text-base-content/50 uppercase tracking-wide">Size</div>
-          <div class="text-sm font-extrabold text-base-content/90 mt-0.5">{size}</div>
-        </div>
-        <!-- Format -->
-        <div class="bg-base-100/50 border border-base-content/10 rounded-xl p-2.5 text-center">
-          <div class="text-[10px] font-bold text-base-content/50 uppercase tracking-wide">Format</div>
-          <div class="text-sm font-extrabold text-base-content/90 mt-0.5">{format}</div>
-        </div>
-        <!-- Context -->
-        <div class="bg-base-100/50 border border-base-content/10 rounded-xl p-2.5 text-center">
-          <div class="text-[10px] font-bold text-base-content/50 uppercase tracking-wide">Context</div>
-          <div class="text-sm font-extrabold text-base-content/90 mt-0.5">{context}</div>
-        </div>
+      <div class="flex flex-col gap-0.5 px-1 border-x border-base-content/8">
+        <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">Size</dt>
+        <dd class="text-sm font-bold text-base-content truncate">{size}</dd>
       </div>
+      <div class="flex flex-col gap-0.5 px-1">
+        <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">Format</dt>
+        <dd class="text-sm font-bold text-base-content truncate">{format}</dd>
+      </div>
+    </dl>
 
-      <!-- Notes Accordion -->
-      {notes && (
-        <div class="collapse collapse-arrow bg-base-100/30 border border-base-content/10 rounded-xl mt-4" style="min-height: 0;">
-          <input type="checkbox" class="peer min-h-0" /> 
-          <div class="collapse-title text-[10px] font-bold text-base-content/70 uppercase tracking-wider flex items-center gap-1.5 py-3 px-4" style="min-height: 0; height: auto;">
-            <span>📝 Additional Notes</span>
-          </div>
-          <div class="collapse-content px-4 pb-4">
-            <div class="text-xs text-base-content/70 leading-relaxed border-t border-base-content/10 pt-3 whitespace-pre-wrap">
-              {notes}
-            </div>
-          </div>
-        </div>
+    <hr class="border-base-content/10 m-0" />
+
+    <!-- Features: label + compact capability icons row -->
+    {capabilities.length > 0 && (
+      <section class="flex flex-col gap-2">
+        <div class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">Features</div>
+        <Capabilities capabilities={capabilities} size="xs" />
+      </section>
+    )}
+
+    <!-- Meta strip: released + author + license (inline, subtle) -->
+    <footer class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-base-content/60 mt-auto pt-1">
+      {released && (
+        <span class="inline-flex items-center gap-1">
+          <Calendar class="w-3 h-3 opacity-60" />
+          {released}
+        </span>
       )}
-    </div>
-
-    <!-- Tags and Action -->
-    <div class="flex flex-col gap-2.5 mt-2">
-      <!-- Tags -->
-      {filteredTags.length > 0 && (
-        <div class="flex items-center gap-2.5">
-          <span class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider shrink-0">Tags:</span>
-          <div class="flex flex-wrap gap-1.5">
-            {filteredTags.map((tag) => (
-              <span class="badge badge-sm bg-base-100 border-base-content/10 text-base-content/70 rounded px-2">
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
+      <span class="inline-flex items-center gap-1">
+        <User class="w-3 h-3 opacity-60" />
+        by <span class="text-base-content/80 font-medium">{author}</span>
+      </span>
+      {license && (
+        <span class="inline-flex items-center gap-1">
+          <ShieldCheck class="w-3 h-3 opacity-60" />
+          {license}
+        </span>
       )}
-
-      <!-- Actions Row -->
-      <div class="flex gap-2.5 mt-1.5">
-        {hasSettings && (
-          <button 
-            class="btn btn-sm btn-outline border-base-content/20 hover:border-pink-500/40 hover:bg-pink-500/5 text-base-content/85 hover:text-base-content rounded-lg flex items-center justify-center gap-1.5 flex-1"
-            onclick={`document.getElementById('modal-${cardId}').showModal()`}
-          >
-            <span>Settings</span>
-          </button>
-        )}
-        {url && (
-          <a 
-            href={url} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            class="btn btn-sm btn-outline border-base-content/20 hover:border-pink-500/40 hover:bg-pink-500/5 text-base-content/85 hover:text-base-content rounded-lg flex items-center justify-center gap-1.5 flex-1"
-          >
-            <span>Get Model</span>
-            <ExternalLink class="w-3.5 h-3.5 opacity-70" />
-          </a>
-        )}
-      </div>
-    </div>
+    </footer>
   </div>
 
-  <!-- Recommended Settings Modal -->
-  {hasSettings && (
-    <dialog id={`modal-${cardId}`} class="modal modal-bottom sm:modal-middle bg-black/60 backdrop-blur-xs">
-      <div class="modal-box bg-base-300 border border-base-content/10 rounded-2xl max-w-sm p-6 relative">
-        <form method="dialog">
-          <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-base-content/70 hover:text-base-content">✕</button>
-        </form>
-        <h3 class="font-outfit font-bold text-lg text-base-content">Recommended Parameters</h3>
-        <p class="text-[10px] font-bold text-pink-500 uppercase tracking-wider mt-0.5">For {name}</p>
-        
-        <div class="grid grid-cols-2 gap-x-4 gap-y-2.5 mt-5 text-xs text-base-content/70 border-t border-base-content/10 pt-4">
-          {activeSettings.map(([label, val]) => (
-            <div class="flex items-center justify-between py-1 border-b border-base-content/5">
-              <span class="opacity-70">{label}</span>
-              <span class="font-mono font-semibold text-base-content/90">{val}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </dialog>
-  )}
-</div>
+  <!-- Action bar: primary "Details" + optional "Settings" (borderless) -->
+  <div class="flex border-t border-base-content/10 divide-x divide-base-content/10 mt-auto">
+    <a
+      href={`/ai-models/${cardId}`}
+      class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 hover:text-pink-200 transition-colors"
+    >
+      <span>Details</span>
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+    {hasSettings && (
+      <button
+        type="button"
+        class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium hover:bg-base-content/5 text-base-content/70 transition-colors"
+        onclick={`document.getElementById('modal-${cardId}').showModal()`}
+      >
+        <span>Settings</span>
+      </button>
+    )}
+  </div>
+
+  <ModelSettingsModal name={name} cardId={cardId} data={data} />
+</article>

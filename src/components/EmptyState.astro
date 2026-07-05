@@ -1,0 +1,11 @@
+---
+interface Props {
+  message?: string;
+}
+
+const { message = 'No items added to this subcategory yet.' } = Astro.props;
+---
+
+<div class="text-sm text-neutral-500 py-8 px-6 border border-dashed border-neutral-800 rounded-2xl text-center bg-[#121214]/10">
+  {message}
+</div>
