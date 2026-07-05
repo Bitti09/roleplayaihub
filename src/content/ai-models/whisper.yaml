@@ -14,3 +14,15 @@ baseModel: "Whisper"
 base: true
 nsfw: "allowed"
 license: "Open Source"
+price:
+  - provider: "OpenAI API"
+    url: "https://openai.com/api/pricing"
+    pricing:
+      - type: "audio"
+        currency: "USD"
+        perMinute: 0.006
+  - provider: "Self-hosted"
+    notes: "Open-source checkpoints - download from Hugging Face and run locally."
+    pricing:
+      - type: "free"
+        currency: "USD"

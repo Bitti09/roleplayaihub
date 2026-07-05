@@ -13,6 +13,109 @@ const settingsSchema = z
   })
   .optional();
 
+/**
+ * Pricing schema for AI models.
+ *
+ * A model can be served by **one or more providers** (e.g. an open-weight
+ * checkpoint on Hugging Face *and* an OpenAI-compatible API endpoint) and
+ * each provider may charge differently across modalities. We model
+ * `price` as an array of providers; each provider in turn has an array
+ * of `pricing` entries discriminated by `type`.
+ *
+ * Conventions:
+ *   - `text` / `embedding` prices are **per 1k tokens** (default USD).
+ *   - `image` prices are **per generated image**.
+ *   - `audio` prices use `perSecond` (TTS) or `perMinute` (STT).
+ *   - `video` prices are **per second** of generated video.
+ *   - `free` means no usage charge (e.g. self-hosted open weights).
+ *
+ * Currency can be overridden per line item so a regional provider can
+ * bill in EUR without forcing every sibling entry to follow.
+ */
+const priceCurrency = z.enum(['USD', 'EUR']).default('USD');
+
+/** LLM-style per-1k-token pricing. */
+const textPrice = z.object({
+  type: z.literal('text'),
+  currency: priceCurrency,
+  input: z.number().nonnegative(),
+  output: z.number().nonnegative(),
+  cachedInput: z.number().nonnegative().optional(),
+});
+
+/** Per-image generation cost. */
+const imagePrice = z.object({
+  type: z.literal('image'),
+  currency: priceCurrency,
+  perImage: z.number().nonnegative(),
+});
+
+/**
+ * Audio pricing - STT typically bills per minute, TTS per second, and
+ * some providers bill per 1k tokens. Any combination of these keys is
+ * allowed; the YAML author picks whichever the provider actually uses.
+ */
+const audioPrice = z.object({
+  type: z.literal('audio'),
+  currency: priceCurrency,
+  perSecond: z.number().nonnegative().optional(),
+  perMinute: z.number().nonnegative().optional(),
+  input: z.number().nonnegative().optional(),
+  output: z.number().nonnegative().optional(),
+});
+
+/**
+ * Video generation pricing. `perSecond` is required; `perMinute` may be
+ * supplied as an alternative bucket for providers that round up to whole
+ * minutes.
+ */
+const videoPrice = z.object({
+  type: z.literal('video'),
+  currency: priceCurrency,
+  perSecond: z.number().nonnegative(),
+  perMinute: z.number().nonnegative().optional(),
+});
+
+/** Embedding-model pricing - input tokens only (no output tokens). */
+const embeddingPrice = z.object({
+  type: z.literal('embedding'),
+  currency: priceCurrency,
+  input: z.number().nonnegative(),
+});
+
+/** Self-hosted / free tier - no monetary charge. */
+const freePrice = z.object({
+  type: z.literal('free'),
+  currency: priceCurrency,
+  notes: z.string().optional(),
+});
+
+/** Single priced line item under a provider. */
+const priceSchema = z.discriminatedUnion('type', [
+  textPrice,
+  imagePrice,
+  audioPrice,
+  videoPrice,
+  embeddingPrice,
+  freePrice,
+]);
+
+/**
+ * A provider is a host/platform that exposes the model behind its own
+ * pricing. `pricing` must contain at least one line item, but the
+ * `pricing` array may be omitted entirely to indicate the provider is
+ * available without published pricing.
+ */
+const providerSchema = z.object({
+  provider: z.string(),
+  url: z.url().optional(),
+  notes: z.string().optional(),
+  pricing: z.array(priceSchema).min(1).optional(),
+});
+
+/** Optional at the model level - not every model has public pricing. */
+const modelPricesSchema = z.array(providerSchema).optional();
+
 const resourceSchema = z.object({
   name: z.string(),
   description: z.string(),
@@ -61,6 +164,7 @@ const modelSchema = z.object({
   capabilities: z.array(z.enum(CAPABILITY_IDS)).optional().default([]),
   icon: z.string().optional().default('brain'),
   featured: z.boolean().optional().default(false),
+  price: modelPricesSchema,
 });
 
 const navigationSchema = z.object({
@@ -78,6 +182,8 @@ export type ResourceData = z.infer<typeof resourceSchema>;
 export type ModelData = z.infer<typeof modelSchema>;
 export type NavigationData = z.infer<typeof navigationSchema>;
 export type SettingsData = NonNullable<z.infer<typeof settingsSchema>>;
+export type Price = z.infer<typeof priceSchema>;
+export type Provider = z.infer<typeof providerSchema>;
 
 export const collections = {
   'ai-models': defineCollection({

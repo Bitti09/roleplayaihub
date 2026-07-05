@@ -31,14 +31,36 @@ const IconComponent = resolveIcon(data.icon);
 const iconColors = colorForName(data.name);
 
 // Build the list of stat cells. Anything with `undefined` value is skipped so
-// the grid only shows fields the YAML actually filled in.
-type Stat = { label: string; value: string; tone?: string };
+// the grid only shows fields the YAML actually filled in. `description`
+// (optional) renders as a muted subtitle below the value - used today by
+// the Content Policy cell to expand on what each tier means in practice.
+type Stat = { label: string; value: string; tone?: string; description?: string };
 
-const nsfwTone: Record<NonNullable<ModelData['nsfw']>, string> = {
+type NsfwTier = NonNullable<ModelData['nsfw']>;
+
+const nsfwTone: Record<NsfwTier, string> = {
   allowed: 'text-emerald-400',
   limited: 'text-amber-400',
   blocked: 'text-red-400',
 };
+
+/**
+ * Short, neutral explanations of what each content-policy tier means.
+ * The phrasing keeps the project for everyone but doesn't hide the fact
+ * that some models are more permissive than others.
+ */
+const nsfwDescription: Record<NsfwTier, string> = {
+  blocked:
+    "Built-in safety refuses to generate explicit sexual or graphic content.",
+  limited:
+    "Permits some mature content; behavior depends on the host (e.g. open weights minus their guardrails).",
+  allowed:
+    "Generates mature content without built-in restrictions or refusals.",
+};
+
+const nsfwValue: NsfwTier = data.nsfw ?? 'blocked';
+const nsfwLabel =
+  nsfwValue.charAt(0).toUpperCase() + nsfwValue.slice(1);
 
 const stats: Stat[] = [
   { label: 'Context Window', value: data.context },
@@ -47,8 +69,9 @@ const stats: Stat[] = [
   { label: 'License', value: data.license },
   {
     label: 'Content Policy',
-    value: (data.nsfw ?? 'blocked').charAt(0).toUpperCase() + (data.nsfw ?? 'blocked').slice(1),
-    tone: nsfwTone[data.nsfw ?? 'blocked'],
+    value: nsfwLabel,
+    tone: nsfwTone[nsfwValue],
+    description: nsfwDescription[nsfwValue],
   },
   { label: 'Base Model', value: data.baseModel ?? '—' },
   { label: 'Released', value: data.released ?? '—' },
@@ -144,6 +167,14 @@ const hasSettings =
             <div class={`text-base sm:text-lg font-bold font-outfit truncate ${stat.tone ?? 'text-base-content'}`}>
               {stat.value}
             </div>
+            {stat.description && (
+              <div
+                class="text-[11px] leading-snug text-base-content/60 mt-1"
+                title={stat.description}
+              >
+                {stat.description}
+              </div>
+            )}
           </div>
         ))}
       </div>

@@ -13,3 +13,20 @@ capabilities: ["Vision", "Audio Input", "Reasoning", "Tool Calling"]
 baseModel: "GPT-4"
 nsfw: "blocked"
 license: "Proprietary"
+price:
+  - provider: "OpenAI"
+    url: "https://openai.com/api/pricing"
+    pricing:
+      - type: "text"
+        currency: "USD"
+        input: 0.0025
+        output: 0.01
+        cachedInput: 0.00125
+  - provider: "Azure OpenAI"
+    url: "https://azure.microsoft.com/en-us/products/ai-services/openai-service"
+    notes: "Enterprise pricing varies by region and commitment tier."
+    pricing:
+      - type: "text"
+        currency: "USD"
+        input: 0.003
+        output: 0.012

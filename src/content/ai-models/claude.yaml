@@ -13,3 +13,27 @@ capabilities: ["Vision", "Audio Input", "Reasoning", "PDF Upload", "Tool Calling
 baseModel: "Claude 3"
 nsfw: "blocked"
 license: "Proprietary"
+price:
+  - provider: "Anthropic"
+    url: "https://www.anthropic.com/pricing"
+    pricing:
+      - type: "text"
+        currency: "USD"
+        input: 0.003
+        output: 0.015
+        cachedInput: 0.0003
+  - provider: "AWS Bedrock"
+    url: "https://aws.amazon.com/bedrock/"
+    notes: "On-demand pricing on Bedrock matches first-party rates plus AWS data-transfer fees."
+    pricing:
+      - type: "text"
+        currency: "USD"
+        input: 0.003
+        output: 0.015
+  - provider: "Google Vertex AI"
+    url: "https://cloud.google.com/vertex-ai"
+    pricing:
+      - type: "text"
+        currency: "USD"
+        input: 0.003
+        output: 0.015

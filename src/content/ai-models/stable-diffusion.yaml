@@ -14,3 +14,16 @@ baseModel: "Stable Diffusion 3"
 base: true
 nsfw: "limited"
 license: "Open Weight"
+price:
+  - provider: "Stability AI API"
+    url: "https://platform.stability.ai"
+    pricing:
+      - type: "image"
+        currency: "USD"
+        perImage: 0.04
+  - provider: "Self-hosted"
+    notes: "Weights are open - run locally on any CUDA / ROCm / Apple Silicon GPU."
+    pricing:
+      - type: "free"
+        currency: "USD"
+        notes: "Bring Your Own Compute - hardware and electricity only."

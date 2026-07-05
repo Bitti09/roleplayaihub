@@ -14,3 +14,17 @@ baseModel: "Llama 3"
 base: true
 nsfw: "limited"
 license: "Open Weight"
+price:
+  - provider: "Self-hosted"
+    notes: "Open weights - download from Hugging Face and run on your own hardware."
+    pricing:
+      - type: "free"
+        currency: "USD"
+        notes: "Bring Your Own Compute - electricity and GPU hours only."
+  - provider: "Groq"
+    url: "https://wow.groq.com"
+    pricing:
+      - type: "text"
+        currency: "USD"
+        input: 0.0005
+        output: 0.0008

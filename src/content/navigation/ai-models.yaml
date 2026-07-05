@@ -4,5 +4,7 @@ categories:
     subcategories: ["Chat Assistants", "Writing & Language"]
   - name: "Image Models"
     subcategories: ["Image Generation", "Image Editing"]
+  - name: "Video Models"
+    subcategories: ["Video Generation", "Video Editing"]
   - name: "Audio Models"
     subcategories: ["Text-to-Speech", "Voice Recognition"]
