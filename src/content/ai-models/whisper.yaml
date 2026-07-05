@@ -9,7 +9,8 @@ url: "https://github.com/openai/whisper"
 category: "Audio Models"
 subcategory: "Voice Recognition"
 tags: ["Speech-to-Text", "Transcription", "Translation"]
+capabilities: ["Audio Input"]
 baseModel: "Whisper"
 base: true
-nsfw: "yes"
+nsfw: "allowed"
 license: "Open Source"

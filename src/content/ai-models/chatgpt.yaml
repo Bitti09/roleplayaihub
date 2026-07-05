@@ -9,6 +9,7 @@ url: "https://chatgpt.com"
 category: "Text Models"
 subcategory: "Chat Assistants"
 tags: ["Chat", "Coding", "Logic"]
+capabilities: ["Vision", "Audio Input", "Reasoning", "Tool Calling"]
 baseModel: "GPT-4"
-nsfw: "no"
+nsfw: "blocked"
 license: "Proprietary"

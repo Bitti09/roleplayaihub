@@ -9,6 +9,7 @@ url: "https://claude.ai"
 category: "Text Models"
 subcategory: "Chat Assistants"
 tags: ["Analysis", "Creative Writing", "Long Context"]
+capabilities: ["Vision", "Audio Input", "Reasoning", "PDF Upload", "Tool Calling"]
 baseModel: "Claude 3"
-nsfw: "no"
+nsfw: "blocked"
 license: "Proprietary"

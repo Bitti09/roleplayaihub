@@ -9,6 +9,7 @@ url: "https://stability.ai"
 category: "Image Models"
 subcategory: "Image Generation"
 tags: ["Image Gen", "Art"]
+capabilities: []
 baseModel: "Stable Diffusion 3"
 base: true
 nsfw: "limited"

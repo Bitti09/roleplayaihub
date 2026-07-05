@@ -1,0 +1,59 @@
+---
+import {
+  CAPABILITIES,
+  normalizeCapabilities,
+} from '../lib/capabilities';
+
+interface Props {
+  /** Raw capability ids from the YAML (will be filtered to the known enum). */
+  capabilities: readonly string[];
+  /**
+   * `xs` (12px) — feature strip on the card
+   * `sm` (14px) — secondary surfaces
+   * `md` (20px) — primary surface (e.g. details page)
+   */
+  size?: 'xs' | 'sm' | 'md';
+}
+
+const { capabilities, size = 'md' } = Astro.props;
+const items = normalizeCapabilities(capabilities);
+const sizeClass =
+  size === 'xs' ? 'w-3 h-3' : size === 'sm' ? 'w-3.5 h-3.5' : 'w-5 h-5';
+const gapClass = size === 'xs' ? 'gap-2' : 'gap-3';
+---
+
+{items.length > 0 && (
+  <div
+    class={`flex flex-wrap items-center ${gapClass}`}
+    role="list"
+    aria-label="Model capabilities"
+  >
+    {items.map((id) => {
+      const cap = CAPABILITIES[id];
+      const Icon = cap.icon;
+      return (
+        <div class="group relative inline-flex">
+          <span
+            role="listitem"
+            aria-label={cap.label}
+            tabindex="0"
+            class={`inline-flex items-center justify-center transition-transform hover:scale-110 focus:scale-110 outline-none cursor-help ${cap.color}`}
+          >
+            <Icon class={sizeClass} aria-hidden="true" />
+          </span>
+          <!-- Custom tooltip (replaces native title for instant, styled, accessible behavior) -->
+          <span
+            role="tooltip"
+            class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-0.5 rounded-md bg-base-300 border border-base-content/10 text-[10px] font-bold uppercase tracking-wider text-base-content whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity duration-150 pointer-events-none z-50 shadow-lg"
+          >
+            {cap.label}
+            <span
+              aria-hidden="true"
+              class="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-1.5 h-1.5 bg-base-300 border-r border-b border-base-content/10 rotate-45"
+            ></span>
+          </span>
+        </div>
+      );
+    })}
+  </div>
+)}

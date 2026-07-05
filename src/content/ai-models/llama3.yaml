@@ -9,6 +9,7 @@ url: "https://meta.ai"
 category: "Text Models"
 subcategory: "Chat Assistants"
 tags: ["General Assistant", "Coding", "Multilingual"]
+capabilities: ["Reasoning", "Tool Calling"]
 baseModel: "Llama 3"
 base: true
 nsfw: "limited"
