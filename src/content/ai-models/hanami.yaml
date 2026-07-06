@@ -3,7 +3,9 @@ author: "alpindale"
 released: "2026-06-12"
 format: EXL2
 size: 7B
-description: "Dieses Modell ist spezialisiert auf tiefgreifendes, narratives Roleplay. Es bietet exzellente logische Konsistenz."
+description:
+  en: "Specialized in deep, narrative roleplay. Offers excellent logical consistency."
+  de: "Dieses Modell ist spezialisiert auf tiefgreifendes, narratives Roleplay. Es bietet exzellente logische Konsistenz."
 context: 32k
 temperature: 0.85
 settings:
@@ -20,4 +22,6 @@ tags: ["Roleplay", "NSFW"]
 capabilities: ["Reasoning"]
 baseModel: "Llama 3"
 license: "Open Weight"
-notes: "Empfohlenes Prompt-Template: ChatML oder Alpaca.\nFür tiefgründiges Story-Schreiben und Erotic Roleplay (ERP) wird eine Repetition Penalty von 1.12 bis 1.15 empfohlen.\n\nKontext-Fenster kann bis zu 32k erweitert werden."
+notes:
+  en: "Recommended prompt template: ChatML or Alpaca.\nFor deep story writing and erotic roleplay (ERP) a repetition penalty of 1.12 to 1.15 is recommended.\n\nContext window can be extended up to 32k."
+  de: "Empfohlenes Prompt-Template: ChatML oder Alpaca.\nFür tiefgründiges Story-Schreiben und Erotic Roleplay (ERP) wird eine Repetition Penalty von 1.12 bis 1.15 empfohlen.\n\nKontext-Fenster kann bis zu 32k erweitert werden."

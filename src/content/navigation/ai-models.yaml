@@ -1,10 +1,18 @@
-title: "AI Models"
+title: { en: "AI Models", de: "KI-Modelle" }
 categories:
-  - name: "Text Models"
-    subcategories: ["Chat Assistants", "Writing & Language"]
-  - name: "Image Models"
-    subcategories: ["Image Generation", "Image Editing"]
-  - name: "Video Models"
-    subcategories: ["Video Generation", "Video Editing"]
-  - name: "Audio Models"
-    subcategories: ["Text-to-Speech", "Voice Recognition"]
+  - name: { en: "Text Models", de: "Textmodelle" }
+    subcategories:
+      - { en: "Chat Assistants", de: "Chat-Assistenten" }
+      - { en: "Writing & Language", de: "Schreiben & Sprache" }
+  - name: { en: "Image Models", de: "Bildmodelle" }
+    subcategories:
+      - { en: "Image Generation", de: "Bilderzeugung" }
+      - { en: "Image Editing", de: "Bildbearbeitung" }
+  - name: { en: "Video Models", de: "Videomodelle" }
+    subcategories:
+      - { en: "Video Generation", de: "Videoerzeugung" }
+      - { en: "Video Editing", de: "Videobearbeitung" }
+  - name: { en: "Audio Models", de: "Audiomodelle" }
+    subcategories:
+      - { en: "Text-to-Speech", de: "Text-zu-Sprache" }
+      - { en: "Voice Recognition", de: "Spracherkennung" }

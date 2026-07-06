@@ -11,7 +11,7 @@ const layoutContent = {
     siteTagline: t({ en: 'Roleplay AI Hub', de: 'Roleplay AI Hub' }),
     defaultDescription: t({
       en: 'Roleplay AI Hub - A directory for Roleplay AI Models, Frontends, and Tools',
-      de: 'Roleplay AI Hub – Ein Verzeichnis für Roleplay-KI-Modelle, Frontends und Werkzeuge',
+      de: 'Roleplay AI Hub - Ein Verzeichnis für Roleplay-KI-Modelle, Frontends und Werkzeuge',
     }),
     navModels: t({ en: 'Models', de: 'Modelle' }),
     navFrontends: t({ en: 'UIs', de: 'UIs' }),

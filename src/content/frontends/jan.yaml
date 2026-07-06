@@ -1,5 +1,7 @@
 name: "Jan"
-description: "An open-source alternative to ChatGPT that runs 100% offline on your computer. Modern interface."
+description:
+  en: "An open-source alternative to ChatGPT that runs 100% offline on your computer. Modern interface."
+  de: "Eine Open-Source-Alternative zu ChatGPT, die zu 100 % offline auf deinem Computer läuft. Moderne Oberfläche."
 url: "https://jan.ai"
 category: "Desktop Clients"
 subcategory: "Cross-Platform UIs"

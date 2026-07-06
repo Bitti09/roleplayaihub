@@ -15,7 +15,13 @@ import {
   type ContentItem,
 } from '../lib/collections';
 import { slugify } from '../lib/slugify';
-import { getIntlayer } from 'intlayer';
+import { resolveLocalized } from '../lib/localized';
+import {
+  getIntlayer,
+  getLocaleFromPath,
+  defaultLocale,
+  type LocalesValues,
+} from 'intlayer';
 import type { ModelData, ResourceData } from '../content.config';
 
 export function getStaticPaths() {
@@ -37,6 +43,15 @@ if (!navigation) {
   return Astro.redirect('/404');
 }
 
+// Resolve the current locale from the URL (this file renders the
+// default locale; the [lang] variant handles prefixed paths).
+const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
+  | LocalesValues
+  | undefined;
+const currentLocale: LocalesValues = (detectedLocale ??
+  defaultLocale) as LocalesValues;
+const defaultLocaleStr = defaultLocale as string;
+
 interface Subcategory {
   name: string;
   slug: string;
@@ -49,18 +64,31 @@ interface Category {
   subcategories: Subcategory[];
 }
 
-const structuredData: Category[] = navigation.data.categories.map((cat) => ({
-  name: cat.name,
-  slug: slugify(cat.name),
-  subcategories: cat.subcategories.map((sub) => ({
-    name: sub,
-    slug: slugify(`${cat.name}-${sub}`),
-    items: items.filter(
-      (item) =>
-        item.data.category === cat.name && item.data.subcategory === sub,
-    ),
-  })),
-}));
+// Build the per-locale navigation tree. Display labels and anchor slugs
+// use the current locale (so DE pages get German slugs and headings);
+// item filtering uses the default-locale value to match the canonical
+// category / subcategory strings declared in each item YAML.
+const structuredData: Category[] = navigation.data.categories.map((cat) => {
+  const localizedCatName = resolveLocalized(cat.name, currentLocale);
+  const defaultCatName = resolveLocalized(cat.name, defaultLocaleStr);
+  return {
+    name: localizedCatName,
+    slug: slugify(localizedCatName),
+    subcategories: cat.subcategories.map((sub) => {
+      const localizedSub = resolveLocalized(sub, currentLocale);
+      const defaultSub = resolveLocalized(sub, defaultLocaleStr);
+      return {
+        name: localizedSub,
+        slug: slugify(`${localizedCatName}-${localizedSub}`),
+        items: items.filter(
+          (item) =>
+            item.data.category === defaultCatName &&
+            item.data.subcategory === defaultSub,
+        ),
+      };
+    }),
+  };
+});
 
 const isModelCollection = collection === ('ai-models' satisfies ContentCollection);
 const common = getIntlayer('common');

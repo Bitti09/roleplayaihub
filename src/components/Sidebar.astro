@@ -1,6 +1,13 @@
 ---
+
 import { slugify } from '../lib/slugify';
-import { getIntlayer } from 'intlayer';
+import {
+  getIntlayer,
+  getLocaleFromPath,
+  defaultLocale,
+  type LocalesValues,
+} from 'intlayer';
+import { resolveLocalized } from '../lib/localized';
 import type { NavigationData } from '../content.config';
 
 interface Props {
@@ -9,6 +16,14 @@ interface Props {
 
 const { navigation } = Astro.props;
 const { navigation: navHeading } = getIntlayer('common');
+
+// Resolve the current locale from the URL so the sidebar labels and
+// anchor slugs stay in the user locale.
+const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
+  | LocalesValues
+  | undefined;
+const currentLocale: LocalesValues = (detectedLocale ??
+  defaultLocale) as LocalesValues;
 ---
 
 <aside class="hidden lg:block lg:col-span-3 sticky top-24 self-start max-h-[80vh] overflow-y-auto pr-2">
@@ -17,29 +32,33 @@ const { navigation: navHeading } = getIntlayer('common');
       {navHeading}
     </div>
     <ul class="flex flex-col gap-4">
-      {navigation.categories.map((category: NavigationData['categories'][number]) => (
-        <li class="flex flex-col gap-1">
-          <span class="text-xs font-bold text-neutral-400 px-3 py-1 font-outfit uppercase tracking-wide">
-            {category.name}
-          </span>
-          <ul class="flex flex-col gap-0.5 mt-0.5 border-l border-white/5 ml-4 pl-1">
-            {category.subcategories.map((sub: string) => {
-              const slug = slugify(`${category.name}-${sub}`);
-              return (
-                <li>
-                  <a
-                    href={`#${slug}`}
-                    class="sidebar-link block text-xs text-neutral-400 hover:text-white hover:bg-white/5 px-3 py-1.5 rounded-lg transition-all duration-200"
-                    data-target={slug}
-                  >
-                    {sub}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </li>
-      ))}
+      {navigation.categories.map((category) => {
+        const localizedCatName = resolveLocalized(category.name, currentLocale);
+        return (
+          <li class="flex flex-col gap-1">
+            <span class="text-xs font-bold text-neutral-400 px-3 py-1 font-outfit uppercase tracking-wide">
+              {localizedCatName}
+            </span>
+            <ul class="flex flex-col gap-0.5 mt-0.5 border-l border-white/5 ml-4 pl-1">
+              {category.subcategories.map((sub) => {
+                const localizedSub = resolveLocalized(sub, currentLocale);
+                const slug = slugify(`${localizedCatName}-${localizedSub}`);
+                return (
+                  <li>
+                    <a
+                      href={`#${slug}`}
+                      class="sidebar-link block text-xs text-neutral-400 hover:text-white hover:bg-white/5 px-3 py-1.5 rounded-lg transition-all duration-200"
+                      data-target={slug}
+                    >
+                      {localizedSub}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
+        );
+      })}
     </ul>
   </nav>
 </aside>

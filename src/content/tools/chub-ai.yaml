@@ -1,5 +1,7 @@
 name: "Chub.ai"
-description: "One of the largest directories of community-made character cards, prompts, and lorebooks."
+description:
+  en: "One of the largest directories of community-made character cards, prompts, and lorebooks."
+  de: "Eines der größten Verzeichnisse für von der Community erstellte Charakterkarten, Prompts und Lorebooks."
 url: "https://chub.ai"
 category: "Development Tools"
 subcategory: "Scrapers & Data"

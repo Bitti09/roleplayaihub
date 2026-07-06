@@ -1,5 +1,7 @@
 name: "KoboldCPP"
-description: "A simple one-file way to run various GGUF models on CPU and GPU with a Kobold AI API."
+description:
+  en: "A simple one-file way to run various GGUF models on CPU and GPU with a Kobold AI API."
+  de: "Eine einfache Möglichkeit in einer einzigen Datei, verschiedene GGUF-Modelle auf CPU und GPU mit einer Kobold-AI-API auszuführen."
 url: "https://github.com/LostRuins/koboldcpp"
 category: "Inference Servers"
 subcategory: "Local Run Backends"

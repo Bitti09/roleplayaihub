@@ -27,8 +27,8 @@ const commonContent = {
     }),
     wipBadge: t({ en: 'WIP', de: 'WIP' }),
     wipMessage: t({
-      en: 'This directory is a work in progress. All listings are placeholder data used for testing the site design — nothing here is production content.',
-      de: 'Dieses Verzeichnis ist Work in Progress. Alle Einträge sind Platzhalterdaten zur Testung des Seitendesigns — nichts hier ist Produktivinhalt.',
+      en: 'This directory is a work in progress. All listings are placeholder data used for testing the site design - nothing here is production content.',
+      de: 'Dieses Verzeichnis ist Work in Progress. Alle Einträge sind Platzhalterdaten zur Testung des Seitendesigns - nichts hier ist Produktivinhalt.',
     }),
     placeholderData: t({ en: 'placeholder data', de: 'Platzhalterdaten' }),
     footerMadeWith: t({
@@ -36,8 +36,8 @@ const commonContent = {
       de: 'Mit ♥ für die KI-Community',
     }),
     footerCopy: t({
-      en: '© {year} Roleplay AI Hub. Built with Astro & DaisyUI.',
-      de: '© {year} Roleplay AI Hub. Gebaut mit Astro & DaisyUI.',
+      en: '(c) {year} Roleplay AI Hub. Built with Astro & DaisyUI.',
+      de: '(c) {year} Roleplay AI Hub. Gebaut mit Astro & DaisyUI.',
     }),
     footerDisclaimer: t({
       en: 'This site does not host any copyrighted files. All links point to external resources.',

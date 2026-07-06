@@ -16,7 +16,7 @@ const homeContent = {
     ctaExplore: t({ en: 'Explore Models', de: 'Modelle entdecken' }),
     ctaFrontends: t({ en: 'Frontends', de: 'Frontends' }),
     ctaTools: t({ en: 'Tools', de: 'Werkzeuge' }),
-    categoriesDivider: t({ en: 'Or browse these categories →', de: 'Oder stöbere in diesen Kategorien →' }),
+    categoriesDivider: t({ en: 'Or browse these categories ->', de: 'Oder stöbere in diesen Kategorien ->' }),
 
     // Category cards (keyed by category slug). Each card has a title +
     // short description.

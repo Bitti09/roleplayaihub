@@ -2,6 +2,18 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'zod';
 
+/**
+ * A string that may be either a plain value (used for the default locale)
+ * or a `{ locale: text }` map. See `src/lib/localized.ts` for the
+ * runtime resolver and rationale.
+ */
+const localizedStringSchema = z.union([
+  z.string(),
+  z.record(z.string(), z.string()),
+]);
+
+export type LocalizedString = z.infer<typeof localizedStringSchema>;
+
 const settingsSchema = z
   .object({
     min_p: z.number().optional(),
@@ -118,7 +130,7 @@ const modelPricesSchema = z.array(providerSchema).optional();
 
 const resourceSchema = z.object({
   name: z.string(),
-  description: z.string(),
+  description: localizedStringSchema,
   url: z.url().optional(),
   category: z.string(),
   subcategory: z.string(),
@@ -148,7 +160,7 @@ const modelSchema = z.object({
   released: z.string().optional(),
   format: z.string().optional().default('GGUF'),
   size: z.string().optional().default('Unknown'),
-  description: z.string(),
+  description: localizedStringSchema,
   context: z.string().optional().default('8k'),
   temperature: z.number().optional(),
   settings: settingsSchema,
@@ -156,7 +168,7 @@ const modelSchema = z.object({
   base: z.boolean().optional().default(false),
   nsfw: z.enum(['allowed', 'limited', 'blocked']).optional().default('blocked'),
   license: z.string().optional().default('Open Weight'),
-  notes: z.string().optional(),
+  notes: localizedStringSchema.optional(),
   url: z.url().optional(),
   category: z.string(),
   subcategory: z.string(),
@@ -168,11 +180,11 @@ const modelSchema = z.object({
 });
 
 const navigationSchema = z.object({
-  title: z.string(),
+  title: localizedStringSchema,
   categories: z.array(
     z.object({
-      name: z.string(),
-      subcategories: z.array(z.string()),
+      name: localizedStringSchema,
+      subcategories: z.array(localizedStringSchema),
     }),
   ),
 });

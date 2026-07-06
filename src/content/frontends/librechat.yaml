@@ -1,5 +1,7 @@
 name: "LibreChat"
-description: "Every ChatGPT alternative in one UI. Supports OpenAI, Anthropic, Gemini, local models, and more."
+description:
+  en: "Every ChatGPT alternative in one UI. Supports OpenAI, Anthropic, Gemini, local models, and more."
+  de: "Jede ChatGPT-Alternative in einer Oberfläche. Unterstützt OpenAI, Anthropic, Gemini, lokale Modelle und mehr."
 url: "https://librechat.ai"
 category: "Web Clients"
 subcategory: "Chat Interfaces"

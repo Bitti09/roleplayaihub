@@ -1,17 +1,20 @@
 ---
 import '../styles/global.css';
-import { Moon, Sun, Sparkles, BookOpen, Layers } from '@lucide/astro';
+import { Moon, Sun, Sparkles, BookOpen, Layers, Wrench } from '@lucide/astro';
 import PagefindConfig from 'astro-pagefind/components/PagefindConfig.astro';
 import {
   getIntlayer,
   defaultLocale,
   getLocaleFromPath,
+  getPathWithoutLocale,
+  getLocalizedUrl,
   type LocalesValues,
 } from 'intlayer';
 import LocaleSwitcher from '../components/LocaleSwitcher.astro';
+import { resolveLocalized, type LocalizedString } from '../lib/localized';
 
 interface Props {
-  title: string;
+  title: LocalizedString;
   description?: string;
   pagefindIgnore?: boolean;
 }
@@ -26,23 +29,39 @@ const htmlLang: LocalesValues = (detectedLocale ?? defaultLocale) as LocalesValu
 
 const layoutStrings = getIntlayer('layout', htmlLang);
 const commonStrings = getIntlayer('common', htmlLang);
+// title may be a plain string or a per-locale map; resolve for <title>.
+const localizedTitle = resolveLocalized(title, htmlLang);
 
 const siteTitle = layoutStrings.siteTitle;
 const resolvedDescription = description ?? layoutStrings.defaultDescription;
 const year = new Date().getFullYear();
 const footerCopy = commonStrings.footerCopy.replace('{year}', String(year));
+
+// Build a locale-aware home URL so the logo keeps the user in the
+// current locale (e.g. `/de` on a German page, `/` on the default).
+// `getLocalizedUrl` handles every routing mode (prefix-no-default,
+// prefix-all, search-params, no-prefix) consistently.
+const homePathWithoutLocale = getPathWithoutLocale('/');
+const homeHref = getLocalizedUrl(homePathWithoutLocale, htmlLang);
+const aiModelsPathWithoutLocale = getPathWithoutLocale('/ai-models');
+const aiModelsHref = getLocalizedUrl(aiModelsPathWithoutLocale, htmlLang);
+const frontendsPathWithoutLocale = getPathWithoutLocale('/frontends');
+const frontendsHref = getLocalizedUrl(frontendsPathWithoutLocale, htmlLang);
+const toolsPathWithoutLocale = getPathWithoutLocale('/tools');
+const toolsHref = getLocalizedUrl(toolsPathWithoutLocale, htmlLang);
 ---
 
 <!DOCTYPE html>
 <html lang={htmlLang} data-theme="dark">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
 
     <!-- SEO Meta Tags -->
-    <title>{title} | {siteTitle}</title>
+    <title>{localizedTitle} | {siteTitle}</title>
     <meta name="description" content={resolvedDescription} />
 
     <!-- Google Fonts -->
@@ -71,7 +90,7 @@ const footerCopy = commonStrings.footerCopy.replace('{year}', String(year));
 
         <!-- Logo -->
         <div class="flex items-center gap-6 shrink-0">
-          <a href="/" class="flex items-center gap-2 group">
+          <a href={homeHref} class="flex items-center gap-2 group">
             <span class="p-1.5 rounded-lg bg-linear-to-tr from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/20 group-hover:scale-105 transition-all duration-300">
               <Sparkles class="w-4 h-4" />
             </span>
@@ -94,14 +113,14 @@ const footerCopy = commonStrings.footerCopy.replace('{year}', String(year));
         <nav class="flex items-center gap-1 sm:gap-4 shrink-0">
           <!-- Text Links -->
           <div class="hidden sm:flex items-center gap-1.5 text-sm font-medium text-base-content/70">
-            <a href="/ai-models" class="px-2.5 py-1.5 rounded-lg hover:text-base-content hover:bg-base-content/5 transition-all duration-300 flex items-center gap-1">
+            <a href={aiModelsHref} class="px-2.5 py-1.5 rounded-lg hover:text-base-content hover:bg-base-content/5 transition-all duration-300 flex items-center gap-1">
               <Layers class="w-3.5 h-3.5 opacity-70" /> {layoutStrings.navModels}
             </a>
-            <a href="/frontends" class="px-2.5 py-1.5 rounded-lg hover:text-base-content hover:bg-base-content/5 transition-all duration-300 flex items-center gap-1">
+            <a href={frontendsHref} class="px-2.5 py-1.5 rounded-lg hover:text-base-content hover:bg-base-content/5 transition-all duration-300 flex items-center gap-1">
               <BookOpen class="w-3.5 h-3.5 opacity-70" /> {layoutStrings.navFrontends}
             </a>
-            <a href="/tools" class="px-2.5 py-1.5 rounded-lg hover:text-base-content hover:bg-base-content/5 transition-all duration-300 flex items-center gap-1">
-              <span class="text-xs">🔧</span> {layoutStrings.navTools}
+            <a href={toolsHref} class="px-2.5 py-1.5 rounded-lg hover:text-base-content hover:bg-base-content/5 transition-all duration-300 flex items-center gap-1">
+              <Wrench class="w-3.5 h-3.5 opacity-70" /> {layoutStrings.navTools}
             </a>
           </div>
 

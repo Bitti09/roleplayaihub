@@ -8,11 +8,17 @@ import {
   User,
 } from '@lucide/astro';
 import { getCollection } from 'astro:content';
-import { getIntlayer } from 'intlayer';
+import {
+  defaultLocale,
+  getIntlayer,
+  getPathWithoutLocale,
+  getLocalizedUrl,
+} from 'intlayer';
 
 import { idFromName } from '../../lib/slugify';
 import { colorForName } from '../../lib/colors';
 import { resolveIcon } from '../../lib/icons';
+import { resolveLocalized } from '../../lib/localized';
 import TagList from '../../components/TagList.astro';
 import Capabilities from '../../components/Capabilities.astro';
 import type { ModelData, Provider } from '../../content.config';
@@ -30,6 +36,22 @@ const data: ModelData = model.data;
 
 const IconComponent = resolveIcon(data.icon);
 const iconColors = colorForName(data.name);
+
+// This page renders the unprefixed default-locale routes (e.g.
+// `/ai-models/chatgpt/`). All copy shown here uses the default locale.
+const currentLocale = defaultLocale as string;
+const localizedDescription = resolveLocalized(data.description, currentLocale);
+const localizedNotes = resolveLocalized(data.notes, currentLocale);
+
+// Locale-aware URLs for breadcrumb + back button. This page only renders
+// the default-locale routes, so currentLocale is always defaultLocale, but
+// we still go through getLocalizedUrl for consistency with the German
+// counterpart.
+const homeHref = getLocalizedUrl(getPathWithoutLocale('/'), currentLocale);
+const aiModelsHref = getLocalizedUrl(
+  getPathWithoutLocale('/ai-models'),
+  currentLocale,
+);
 
 const common = getIntlayer('common');
 const detail = getIntlayer('model-detail');
@@ -209,9 +231,9 @@ const providerCountLabel =
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <!-- Breadcrumbs -->
     <div class="text-xs text-neutral-500 flex items-center gap-1.5 mb-4">
-      <a href="/" class="hover:text-neutral-300 transition-colors">{detail.breadcrumbHome}</a>
+      <a href={homeHref} class="hover:text-neutral-300 transition-colors">{detail.breadcrumbHome}</a>
       <ChevronRight class="w-3 h-3 opacity-60" />
-      <a href="/ai-models" class="hover:text-neutral-300 transition-colors">{detail.breadcrumbCollection}</a>
+      <a href={aiModelsHref} class="hover:text-neutral-300 transition-colors">{detail.breadcrumbCollection}</a>
       <ChevronRight class="w-3 h-3 opacity-60" />
       <span class="text-neutral-400 truncate">{data.name}</span>
     </div>
@@ -246,7 +268,7 @@ const providerCountLabel =
         </div>
         <div class="flex flex-wrap gap-2 shrink-0">
           <a
-            href="/ai-models"
+            href={aiModelsHref}
             class="btn btn-sm btn-ghost rounded-lg border border-base-content/10 text-base-content/85 hover:text-base-content"
           >
             <ArrowLeft class="w-4 h-4" />
@@ -270,7 +292,7 @@ const providerCountLabel =
     <!-- Description -->
     <div class="mt-6 glass-panel rounded-2xl p-6">
       <p class="text-sm text-base-content/85 leading-relaxed">
-        {data.description}
+        {localizedDescription}
       </p>
     </div>
 
@@ -386,13 +408,13 @@ const providerCountLabel =
     )}
 
     <!-- Notes -->
-    {data.notes && (
+    {localizedNotes && (
       <div class="glass-panel rounded-2xl p-6 mt-6">
         <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
           {detail.sectionNotes}
         </div>
         <div class="text-sm text-base-content/85 leading-relaxed whitespace-pre-wrap">
-          {data.notes}
+          {localizedNotes}
         </div>
       </div>
     )}

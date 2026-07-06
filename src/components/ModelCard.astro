@@ -6,11 +6,17 @@ import {
   TriangleAlert,
   CircleAlert,
 } from '@lucide/astro';
-import { getIntlayer } from 'intlayer';
+import {
+  getIntlayer,
+  getLocaleFromPath,
+  getPathWithoutLocale,
+  getLocalizedUrl,
+} from 'intlayer';
 import type { ModelData } from '../content.config';
 import { idFromName } from '../lib/slugify';
 import { colorForName } from '../lib/colors';
 import { resolveIcon } from '../lib/icons';
+import { resolveLocalized } from '../lib/localized';
 import Capabilities from './Capabilities.astro';
 import ModelSettingsModal from './ModelSettingsModal.astro';
 
@@ -37,6 +43,19 @@ const {
 
 const cardId = idFromName(name);
 const IconComponent = resolveIcon(data.icon);
+
+/**
+ * Resolve the current locale for this card render. The card is reused
+ * across both the unprefixed default pages (`/ai-models/...`) and the
+ * locale-prefixed pages (`/de/ai-models/...`), so we read the URL path
+ * instead of relying on a `lang` prop.
+ */
+const currentLocale = (getLocaleFromPath(Astro.url.pathname) ?? 'en') as string;
+const localizedDescription = resolveLocalized(description, currentLocale);
+const cardHref = getLocalizedUrl(
+  getPathWithoutLocale(`/ai-models/${cardId}`),
+  currentLocale,
+);
 
 /**
  * Pull the `text-*` class out of the palette so we can paint the bare icon
@@ -98,7 +117,7 @@ const hasSettings =
           id={cardId}
           class="text-lg font-bold text-base-content font-outfit scroll-mt-24 truncate leading-tight"
         >
-          <a href={`/ai-models/${cardId}`} class="hover:text-pink-400 transition-colors">
+          <a href={cardHref} class="hover:text-pink-400 transition-colors">
             {name}
           </a>
         </h3>
@@ -117,7 +136,7 @@ const hasSettings =
 
     <!-- Description -->
     <p class="text-sm text-base-content/70 leading-relaxed line-clamp-3">
-      {description}
+      {localizedDescription}
     </p>
 
     <!-- Section divider -->
@@ -173,7 +192,7 @@ const hasSettings =
   <!-- Action bar: primary "Details" + optional "Settings" (borderless) -->
   <div class="flex border-t border-base-content/10 divide-x divide-base-content/10 mt-auto">
     <a
-      href={`/ai-models/${cardId}`}
+      href={cardHref}
       class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 hover:text-pink-200 transition-colors"
     >
       <span>{common.details}</span>

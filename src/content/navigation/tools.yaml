@@ -1,6 +1,10 @@
-title: "Tools & Utilities"
+title: { en: "Tools & Utilities", de: "Werkzeuge & Hilfsmittel" }
 categories:
-  - name: "Inference Servers"
-    subcategories: ["Local Run Backends", "API Gateways"]
-  - name: "Development Tools"
-    subcategories: ["CLI Utilities", "Scrapers & Data"]
+  - name: { en: "Inference Servers", de: "Inferenz-Server" }
+    subcategories:
+      - { en: "Local Run Backends", de: "Lokale Backends" }
+      - { en: "API Gateways", de: "API-Gateways" }
+  - name: { en: "Development Tools", de: "Entwicklerwerkzeuge" }
+    subcategories:
+      - { en: "CLI Utilities", de: "CLI-Werkzeuge" }
+      - { en: "Scrapers & Data", de: "Scraper & Daten" }

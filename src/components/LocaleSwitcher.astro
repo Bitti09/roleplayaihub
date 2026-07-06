@@ -81,6 +81,30 @@ const pathWithoutLocale = getPathWithoutLocale(Astro.url.pathname);
   </ul>
 </details>
 
+<script>
+  /**
+   * Persist the chosen locale in the intlayer cookie/localStorage so that
+   * - intlayer middleware (if added later) can auto-redirect returning
+   *   visitors to their preferred locale
+   * - any client-side locale bootstrap reading `intlayer-locale` / the
+   *   `INTLAYER_LOCALE` cookie picks up the user's choice immediately
+   *
+   * Navigation still happens via the real <a href> above, so the visible
+   * switch works without JS. This handler is purely additive.
+   */
+  import { setLocaleInStorageClient, type LocalesValues } from 'intlayer';
+
+  const localeLinks = document.querySelectorAll<HTMLAnchorElement>('[data-locale]');
+
+  localeLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      const locale = link.getAttribute('data-locale') as LocalesValues | null;
+      if (!locale) return;
+      setLocaleInStorageClient(locale);
+    });
+  });
+</script>
+
 <style>
   .locale-switcher {
     list-style: none;

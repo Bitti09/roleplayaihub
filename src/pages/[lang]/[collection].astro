@@ -12,6 +12,7 @@ import {
   type ContentItem,
 } from '../../lib/collections';
 import { slugify } from '../../lib/slugify';
+import { resolveLocalized } from '../../lib/localized';
 import { getIntlayer, defaultLocale, locales, type LocalesValues } from 'intlayer';
 import type { ModelData, ResourceData } from '../../content.config';
 
@@ -44,6 +45,8 @@ if (!navigation) {
   return Astro.redirect('/404');
 }
 
+const defaultLocaleStr = defaultLocale as string;
+
 interface Subcategory {
   name: string;
   slug: string;
@@ -55,18 +58,30 @@ interface Category {
   subcategories: Subcategory[];
 }
 
-const structuredData: Category[] = navigation.data.categories.map((cat) => ({
-  name: cat.name,
-  slug: slugify(cat.name),
-  subcategories: cat.subcategories.map((sub) => ({
-    name: sub,
-    slug: slugify(`${cat.name}-${sub}`),
-    items: items.filter(
-      (item) =>
-        item.data.category === cat.name && item.data.subcategory === sub,
-    ),
-  })),
-}));
+// Build the per-locale navigation tree. Display labels and anchor slugs
+// use the URL locale; item filtering uses the default-locale value to
+// match the canonical category / subcategory strings declared in each item YAML.
+const structuredData: Category[] = navigation.data.categories.map((cat) => {
+  const localizedCatName = resolveLocalized(cat.name, lang);
+  const defaultCatName = resolveLocalized(cat.name, defaultLocaleStr);
+  return {
+    name: localizedCatName,
+    slug: slugify(localizedCatName),
+    subcategories: cat.subcategories.map((sub) => {
+      const localizedSub = resolveLocalized(sub, lang);
+      const defaultSub = resolveLocalized(sub, defaultLocaleStr);
+      return {
+        name: localizedSub,
+        slug: slugify(`${localizedCatName}-${localizedSub}`),
+        items: items.filter(
+          (item) =>
+            item.data.category === defaultCatName &&
+            item.data.subcategory === defaultSub,
+        ),
+      };
+    }),
+  };
+});
 
 const isModelCollection = typedCollection === ('ai-models' as const);
 const common = getIntlayer('common', lang);

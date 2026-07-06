@@ -42,7 +42,7 @@ content is not.
 ## 🧱 Tech Stack
 
 | Layer | Choice | Version |
-|---|---|---|
+| --- | --- | --- |
 | Framework | [Astro](https://astro.build) | `^6.4.6` |
 | Adapter | [`@astrojs/cloudflare`](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) | `^13.7.0` |
 | Styles | [Tailwind CSS](https://tailwindcss.com) + [`@tailwindcss/vite`](https://tailwindcss.com/docs/installation/using-vite) | `^4.3.1` |
@@ -57,7 +57,7 @@ content is not.
 
 ## 📁 Project Structure
 
-```
+```text
 rpaihub/
 ├── astro.config.mjs          # Astro config (static output + pagefind + tailwind)
 ├── wrangler.toml             # Cloudflare Pages deployment config
@@ -164,7 +164,7 @@ if a YAML file doesn't match.
 ### AI-model schema
 
 | Field | Type | Required | Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `name` | string | ✅ | Display name (e.g. `ChatGPT`) |
 | `description` | string | ✅ | 1–2 sentence summary |
 | `author` | string | ✅ | Creator / organization |

@@ -14,7 +14,7 @@ const modelDetailContent = {
     sectionCapabilities: t({ en: 'Capabilities', de: 'Fähigkeiten' }),
     sectionTags: t({ en: 'Tags', de: 'Schlagwörter' }),
     sectionParameters: t({ en: 'Recommended Parameters', de: 'Empfohlene Parameter' }),
-    sectionNotes: t({ en: '✦ Notes', de: '✦ Notizen' }),
+    sectionNotes: t({ en: 'Notes', de: 'Notizen' }),
     sectionPricing: t({ en: 'Pricing', de: 'Preise' }),
     pricingProviderSingular: t({ en: '1 provider', de: '1 Anbieter' }),
     pricingProviderPlural: t({ en: '{count} providers', de: '{count} Anbieter' }),

@@ -1,5 +1,7 @@
 name: "SillyTavern"
-description: "Power-user frontend for roleplay, text generation, and character-based chat."
+description:
+  en: "Power-user frontend for roleplay, text generation, and character-based chat."
+  de: "Power-User-Frontend für Roleplay, Textgenerierung und charakterbasierten Chat."
 url: "https://sillytavern.app"
 category: "Web Clients"
 subcategory: "Chat Interfaces"

@@ -3,7 +3,9 @@ author: "OpenAI"
 released: "2024-12-09"
 format: "API"
 size: "Cloud"
-description: "OpenAI's flagship text-to-video generation model, capable of producing photorealistic clips up to a minute long from natural-language or image prompts."
+description:
+  en: "OpenAI's flagship text-to-video generation model, capable of producing photorealistic clips up to a minute long from natural-language or image prompts."
+  de: "OpenAIs Flaggschiff-Modell zur Text-zu-Video-Generierung, das fotorealistische Clips von bis zu einer Minute aus natürlichsprachlichen oder Bild-Prompts erzeugen kann."
 context: "N/A"
 url: "https://openai.com/sora"
 category: "Video Models"
@@ -23,4 +25,6 @@ price:
         currency: "USD"
         perSecond: 0.10
         perMinute: 6.00
-notes: "Sora can extend clips and remix existing footage. Output duration defaults to 5s, configurable up to 20s (Plus) or 60s (Pro)."
+notes:
+  en: "Sora can extend clips and remix existing footage. Output duration defaults to 5s, configurable up to 20s (Plus) or 60s (Pro)."
+  de: "Sora kann Clips verlängern und bestehendes Footage remixen. Die Ausgabedauer liegt standardmäßig bei 5s und ist bis zu 20s (Plus) oder 60s (Pro) konfigurierbar."

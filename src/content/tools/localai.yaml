@@ -1,5 +1,7 @@
 name: "LocalAI"
-description: "The free, open-source OpenAI alternative. Self-hosted, local, OpenAI-compatible API."
+description:
+  en: "The free, open-source OpenAI alternative. Self-hosted, local, OpenAI-compatible API."
+  de: "Die kostenlose Open-Source-Alternative zu OpenAI. Selbstgehostet, lokal, OpenAI-kompatible API."
 url: "https://localai.io"
 category: "Inference Servers"
 subcategory: "API Gateways"

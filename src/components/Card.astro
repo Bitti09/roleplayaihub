@@ -1,10 +1,16 @@
 ---
 import { ExternalLink } from '@lucide/astro';
-import { getIntlayer } from 'intlayer';
+import {
+  getIntlayer,
+  getLocaleFromPath,
+  defaultLocale,
+  type LocalesValues,
+} from 'intlayer';
 import type { ResourceData } from '../content.config';
 import { idFromName } from '../lib/slugify';
 import { colorForName } from '../lib/colors';
 import { resolveIcon } from '../lib/icons';
+import { resolveLocalized } from '../lib/localized';
 import TagList from './TagList.astro';
 
 interface Props {
@@ -18,6 +24,16 @@ const cardId = idFromName(name);
 const IconComponent = resolveIcon(icon);
 const iconColors = colorForName(name);
 const { visitSite } = getIntlayer('common');
+
+// Resolve the current locale from the URL so the description stays in
+// the user locale. The description field may be either a plain string
+// or a per-locale map.
+const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
+  | LocalesValues
+  | undefined;
+const currentLocale: LocalesValues = (detectedLocale ??
+  defaultLocale) as LocalesValues;
+const localizedDescription = resolveLocalized(description, currentLocale);
 ---
 
 <div class="card glass-panel glass-panel-hover overflow-hidden rounded-2xl transition-all duration-300">
@@ -32,7 +48,7 @@ const { visitSite } = getIntlayer('common');
         </h3>
       </div>
       <p class="text-sm text-base-content/70 mt-4 leading-relaxed line-clamp-3">
-        {description}
+        {localizedDescription}
       </p>
     </div>
 

@@ -9,6 +9,7 @@ import {
 } from '@lucide/astro';
 import { getCollection } from 'astro:content';
 import { getIntlayer, defaultLocale, locales, type LocalesValues } from 'intlayer';
+import { resolveLocalized } from '../../../lib/localized';
 
 import { idFromName } from '../../../lib/slugify';
 import { colorForName } from '../../../lib/colors';
@@ -46,6 +47,10 @@ const iconColors = colorForName(data.name);
 
 const common = getIntlayer('common', lang);
 const detail = getIntlayer('model-detail', lang);
+
+// Resolve the model description against the active route's locale.
+const localizedDescription = resolveLocalized(data.description, lang as string);
+const localizedNotes = resolveLocalized(data.notes, lang as string);
 
 type Stat = { label: string; value: string; tone?: string; description?: string };
 type NsfwTier = NonNullable<ModelData['nsfw']>;
@@ -238,7 +243,7 @@ const providerCountLabel =
       </div>
     </div>
     <div class="mt-6 glass-panel rounded-2xl p-6">
-      <p class="text-sm text-base-content/85 leading-relaxed">{data.description}</p>
+      <p class="text-sm text-base-content/85 leading-relaxed">{localizedDescription}</p>
     </div>
     {stats.length > 0 && (
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-6">
@@ -314,10 +319,10 @@ const providerCountLabel =
         </div>
       </div>
     )}
-    {data.notes && (
+    {localizedNotes && (
       <div class="glass-panel rounded-2xl p-6 mt-6">
         <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">{detail.sectionNotes}</div>
-        <div class="text-sm text-base-content/85 leading-relaxed whitespace-pre-wrap">{data.notes}</div>
+        <div class="text-sm text-base-content/85 leading-relaxed whitespace-pre-wrap">{localizedNotes}</div>
       </div>
     )}
     {hasPricing && (

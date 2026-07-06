@@ -2,7 +2,7 @@ import { t, type Dictionary } from 'intlayer';
 
 /**
  * Strings used on the per-collection listing pages
- * (`src/pages/[collection].astro`) — header, sidebar, item cards.
+ * (`src/pages/[collection].astro`) - header, sidebar, item cards.
  */
 const collectionContent = {
   key: 'collection',
@@ -16,7 +16,7 @@ const collectionContent = {
       de: 'Empfohlene Parameter',
     }),
     settingsModalTagPrefix: t({ en: 'For ', de: 'Für ' }),
-    modalClose: t({ en: '✕', de: '✕' }),
+    modalClose: t({ en: 'X', de: 'X' }),
   },
 } satisfies Dictionary;
 

@@ -1,10 +1,18 @@
-title: "Frontends"
+title: { en: "Frontends", de: "Frontends" }
 categories:
-  - name: "Web Clients"
-    subcategories: ["Chat Interfaces", "Admin Dashboards"]
-  - name: "Desktop Clients"
-    subcategories: ["Cross-Platform UIs", "OS Native UIs"]
-  - name: "Mobile Clients"
-    subcategories: ["Android Apps", "iOS Apps"]
-  - name: "CLI Clients"
-    subcategories: ["Interactive Terminals", "TUI Clients"]
+  - name: { en: "Web Clients", de: "Web-Clients" }
+    subcategories:
+      - { en: "Chat Interfaces", de: "Chat-Oberflächen" }
+      - { en: "Admin Dashboards", de: "Admin-Dashboards" }
+  - name: { en: "Desktop Clients", de: "Desktop-Clients" }
+    subcategories:
+      - { en: "Cross-Platform UIs", de: "Plattformübergreifende UIs" }
+      - { en: "OS Native UIs", de: "Native Betriebssystem-UIs" }
+  - name: { en: "Mobile Clients", de: "Mobile-Clients" }
+    subcategories:
+      - { en: "Android Apps", de: "Android-Apps" }
+      - { en: "iOS Apps", de: "iOS-Apps" }
+  - name: { en: "CLI Clients", de: "CLI-Clients" }
+    subcategories:
+      - { en: "Interactive Terminals", de: "Interaktive Terminals" }
+      - { en: "TUI Clients", de: "TUI-Clients" }

@@ -1,5 +1,7 @@
 name: "LM Studio"
-description: "Run any open-source model locally on your laptop, offline. Beautiful native desktop UI."
+description:
+  en: "Run any open-source model locally on your laptop, offline. Beautiful native desktop UI."
+  de: "Führe Open-Source-Modelle lokal und offline auf deinem Laptop aus. Schöne native Desktop-Oberfläche."
 url: "https://lmstudio.ai"
 category: "Desktop Clients"
 subcategory: "Cross-Platform UIs"
