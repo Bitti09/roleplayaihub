@@ -9,10 +9,14 @@ const collectionContent = {
   content: {
     defaultDescription: t({
       en: 'Discover and filter {collection} curated by the community.',
+      de: 'Entdecke und filtere {collection}, kuratiert von der Community.',
     }),
-    settingsModalTitle: t({ en: 'Recommended Parameters' }),
-    settingsModalTagPrefix: t({ en: 'For ' }),
-    modalClose: t({ en: '✕' }),
+    settingsModalTitle: t({
+      en: 'Recommended Parameters',
+      de: 'Empfohlene Parameter',
+    }),
+    settingsModalTagPrefix: t({ en: 'For ', de: 'Für ' }),
+    modalClose: t({ en: '✕', de: '✕' }),
   },
 } satisfies Dictionary;
 

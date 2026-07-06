@@ -2,7 +2,13 @@
 import '../styles/global.css';
 import { Moon, Sun, Sparkles, BookOpen, Layers } from '@lucide/astro';
 import PagefindConfig from 'astro-pagefind/components/PagefindConfig.astro';
-import { getIntlayer } from 'intlayer';
+import {
+  getIntlayer,
+  defaultLocale,
+  getLocaleFromPath,
+  type LocalesValues,
+} from 'intlayer';
+import LocaleSwitcher from '../components/LocaleSwitcher.astro';
 
 interface Props {
   title: string;
@@ -12,8 +18,14 @@ interface Props {
 
 const { title, description, pagefindIgnore = false } = Astro.props;
 
-const layoutStrings = getIntlayer('layout');
-const commonStrings = getIntlayer('common');
+// prefix-no-default routing: non-default locales get a URL prefix
+// (e.g. /de/ai-models/chatgpt/). Reflect that into <html lang> for
+// accessibility and SEO. Falls back to the build-time default locale.
+const detectedLocale = getLocaleFromPath(Astro.url.pathname) as LocalesValues | undefined;
+const htmlLang: LocalesValues = (detectedLocale ?? defaultLocale) as LocalesValues;
+
+const layoutStrings = getIntlayer('layout', htmlLang);
+const commonStrings = getIntlayer('common', htmlLang);
 
 const siteTitle = layoutStrings.siteTitle;
 const resolvedDescription = description ?? layoutStrings.defaultDescription;
@@ -22,7 +34,7 @@ const footerCopy = commonStrings.footerCopy.replace('{year}', String(year));
 ---
 
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang={htmlLang} data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -91,6 +103,11 @@ const footerCopy = commonStrings.footerCopy.replace('{year}', String(year));
             <a href="/tools" class="px-2.5 py-1.5 rounded-lg hover:text-base-content hover:bg-base-content/5 transition-all duration-300 flex items-center gap-1">
               <span class="text-xs">🔧</span> {layoutStrings.navTools}
             </a>
+          </div>
+
+          <!-- Locale Switcher -->
+          <div class="hidden sm:flex items-center">
+            <LocaleSwitcher />
           </div>
 
           <!-- Divider -->

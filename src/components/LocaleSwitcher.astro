@@ -1,0 +1,125 @@
+---
+/**
+ * LocaleSwitcher
+ *
+ * Dropdown menu of supported locales. With `prefix-no-default` routing
+ * the URL carries the locale (e.g. /de/ai-models/chatgpt/), so each
+ * menu item is a real <a> whose href is the locale-prefixed URL
+ * produced by `getLocalizedUrl`. No JS click handler needed — the
+ * browser handles the navigation and the new page renders in the
+ * requested locale.
+ *
+ * Native <details>/<summary> pattern: keyboard- and screen-reader
+ * friendly out of the box. Trigger label shows the current locale
+ * code (e.g. "EN" / "DE").
+ */
+import {
+  locales,
+  defaultLocale,
+  getLocaleFromPath,
+  getPathWithoutLocale,
+  getLocalizedUrl,
+  getLocaleName,
+  type LocalesValues,
+} from 'intlayer';
+
+const typedLocales: LocalesValues[] = locales as LocalesValues[];
+
+const detected = getLocaleFromPath(Astro.url.pathname) as LocalesValues | undefined;
+const activeLocale: LocalesValues =
+  (detected && typedLocales.includes(detected) ? detected : defaultLocale) as LocalesValues;
+
+const pathWithoutLocale = getPathWithoutLocale(Astro.url.pathname);
+---
+
+<details class="locale-switcher group relative" data-locale-switcher>
+  <summary
+    data-locale-summary
+    data-locales={typedLocales.join(',')}
+    data-current-locale={activeLocale}
+    aria-haspopup="listbox"
+    aria-label="Language"
+    title="Language"
+    class="locale-summary inline-flex items-center justify-center gap-1 min-w-9 h-8 px-2 rounded-lg text-[10px] font-extrabold uppercase tracking-wider cursor-pointer select-none transition-all"
+  >
+    <span data-locale-label>{activeLocale}</span>
+    <svg
+      class="w-3 h-3 opacity-60 transition-transform group-open:rotate-180"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  </summary>
+
+  <ul
+    class="locale-menu absolute right-0 mt-2 min-w-32 rounded-xl border border-base-content/10 bg-base-200/95 backdrop-blur-lg shadow-xl shadow-black/20 py-1 z-50"
+    role="listbox"
+    aria-label="Available languages"
+  >
+    {
+      typedLocales.map((localeItem) => (
+        <li role="presentation">
+          <a
+            href={getLocalizedUrl(pathWithoutLocale, localeItem)}
+            data-locale={localeItem}
+            role="option"
+            aria-current={localeItem === activeLocale ? 'true' : undefined}
+            class="locale-option flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wider no-underline transition-all"
+          >
+            <span class="locale-option-code text-[10px] opacity-70 w-5">{localeItem}</span>
+            <span class="locale-option-name">{getLocaleName(localeItem)}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</details>
+
+<style>
+  .locale-switcher {
+    list-style: none;
+  }
+  .locale-switcher > summary::-webkit-details-marker {
+    display: none;
+  }
+  .locale-switcher > summary::marker {
+    display: none;
+  }
+
+  .locale-summary {
+    color: rgb(var(--color-base-content, 255 255 255) / 0.7);
+    background: transparent;
+    border: 1px solid rgb(var(--color-base-content, 255 255 255) / 0.1);
+    list-style: none;
+  }
+  .locale-summary:hover {
+    color: rgb(236 72 153 / 1);
+    background: rgb(236 72 153 / 0.1);
+    border-color: rgb(236 72 153 / 0.3);
+  }
+  .locale-summary:focus-visible {
+    outline: 2px solid rgb(236 72 153 / 0.6);
+    outline-offset: 2px;
+  }
+
+  .locale-option {
+    color: rgb(var(--color-base-content, 255 255 255) / 0.75);
+  }
+  .locale-option:hover {
+    color: rgb(236 72 153 / 1);
+    background: rgb(236 72 153 / 0.1);
+  }
+  .locale-option[aria-current='true'] {
+    color: rgb(236 72 153 / 1);
+    background: rgb(236 72 153 / 0.08);
+  }
+  .locale-option[aria-current='true'] .locale-option-code {
+    opacity: 1;
+  }
+</style>

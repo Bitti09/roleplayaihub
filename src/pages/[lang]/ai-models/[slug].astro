@@ -1,0 +1,380 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import {
+  ChevronRight,
+  ArrowLeft,
+  ExternalLink,
+  Calendar,
+  User,
+} from '@lucide/astro';
+import { getCollection } from 'astro:content';
+import { getIntlayer, defaultLocale, locales, type LocalesValues } from 'intlayer';
+
+import { idFromName } from '../../../lib/slugify';
+import { colorForName } from '../../../lib/colors';
+import { resolveIcon } from '../../../lib/icons';
+import TagList from '../../../components/TagList.astro';
+import Capabilities from '../../../components/Capabilities.astro';
+import type { ModelData, Provider } from '../../../content.config';
+
+export async function getStaticPaths() {
+  const models = await getCollection('ai-models');
+  return (locales as readonly string[])
+    .filter((l) => l !== defaultLocale)
+    .flatMap((lang) =>
+      models.map((model) => ({
+        params: { lang, slug: idFromName(model.data.name) },
+      })),
+    );
+}
+
+const lang = Astro.params.lang as LocalesValues;
+if (lang === defaultLocale) {
+  return Astro.redirect(`/ai-models/${Astro.params.slug}`);
+}
+
+const slug = Astro.params.slug;
+const models = await getCollection('ai-models');
+const model = models.find((m) => idFromName(m.data.name) === slug);
+if (!model) {
+  return Astro.redirect('/404');
+}
+
+const data: ModelData = model.data;
+const IconComponent = resolveIcon(data.icon);
+const iconColors = colorForName(data.name);
+
+const common = getIntlayer('common', lang);
+const detail = getIntlayer('model-detail', lang);
+
+type Stat = { label: string; value: string; tone?: string; description?: string };
+type NsfwTier = NonNullable<ModelData['nsfw']>;
+
+const nsfwTone: Record<NsfwTier, string> = {
+  allowed: 'text-emerald-400',
+  limited: 'text-amber-400',
+  blocked: 'text-red-400',
+};
+
+const nsfwDescription: Record<NsfwTier, string> = {
+  blocked: detail.nsfwBlockedDescription,
+  limited: detail.nsfwLimitedDescription,
+  allowed: detail.nsfwAllowedDescription,
+};
+
+const nsfwLabels: Record<NsfwTier, string> = {
+  blocked: detail.nsfwBlocked,
+  limited: detail.nsfwLimited,
+  allowed: detail.nsfwAllowed,
+};
+
+const nsfwValue: NsfwTier = data.nsfw ?? 'blocked';
+const nsfwLabel = nsfwLabels[nsfwValue];
+
+const stats: Stat[] = [
+  { label: detail.statContextWindow, value: data.context },
+  { label: detail.statFormat, value: data.format },
+  { label: detail.statSize, value: data.size },
+  { label: detail.statLicense, value: data.license },
+  {
+    label: detail.statContentPolicy,
+    value: nsfwLabel,
+    tone: nsfwTone[nsfwValue],
+    description: nsfwDescription[nsfwValue],
+  },
+  { label: detail.statBaseModel, value: data.baseModel ?? '—' },
+  { label: detail.statReleased, value: data.released ?? '—' },
+  { label: detail.statAuthor, value: data.author },
+].filter((s: Stat) => s.value && s.value !== '—');
+
+const settings = data.settings;
+const temperature = data.temperature;
+const hasSettings =
+  temperature !== undefined ||
+  (settings !== undefined &&
+    Object.values(settings).some((v) => v !== undefined));
+
+type Cell = string | null;
+type Row = {
+  name: string;
+  url: string | null;
+  notes: string | null;
+  isFree: boolean;
+  textInput: Cell;
+  textOutput: Cell;
+  cachedInput: Cell;
+  image: Cell;
+  audioPerSec: Cell;
+  audioPerMin: Cell;
+  videoPerSec: Cell;
+  videoPerMin: Cell;
+  embedding: Cell;
+};
+
+const providers: Provider[] | undefined = data.price;
+const hasPricing = providers !== undefined && providers.length > 0;
+
+function fmt(n: number, c: 'USD' | 'EUR'): string {
+  return (c === 'EUR' ? '€' : '$') + n.toFixed(4);
+}
+
+function normalizeProvider(p: Provider): Row {
+  const row: Row = {
+    name: p.provider,
+    url: p.url ?? null,
+    notes: p.notes ?? null,
+    isFree: false,
+    textInput: null,
+    textOutput: null,
+    cachedInput: null,
+    image: null,
+    audioPerSec: null,
+    audioPerMin: null,
+    videoPerSec: null,
+    videoPerMin: null,
+    embedding: null,
+  };
+  let hasPaid = false;
+  for (const line of p.pricing ?? []) {
+    switch (line.type) {
+      case 'text':
+        hasPaid = true;
+        row.textInput = fmt(line.input, line.currency);
+        row.textOutput = fmt(line.output, line.currency);
+        if (line.cachedInput !== undefined) {
+          row.cachedInput = fmt(line.cachedInput, line.currency);
+        }
+        break;
+      case 'image':
+        hasPaid = true;
+        row.image = fmt(line.perImage, line.currency);
+        break;
+      case 'audio':
+        hasPaid = true;
+        if (line.perSecond !== undefined)
+          row.audioPerSec = fmt(line.perSecond, line.currency);
+        if (line.perMinute !== undefined)
+          row.audioPerMin = fmt(line.perMinute, line.currency);
+        break;
+      case 'video':
+        hasPaid = true;
+        row.videoPerSec = fmt(line.perSecond, line.currency);
+        if (line.perMinute !== undefined)
+          row.videoPerMin = fmt(line.perMinute, line.currency);
+        break;
+      case 'embedding':
+        hasPaid = true;
+        row.embedding = fmt(line.input, line.currency);
+        break;
+      case 'free':
+        break;
+    }
+  }
+  row.isFree = !hasPaid;
+  return row;
+}
+
+const rows: Row[] = (providers ?? []).map(normalizeProvider);
+const show = {
+  textInput: rows.some((r: Row) => r.textInput !== null),
+  textOutput: rows.some((r: Row) => r.textOutput !== null),
+  cachedInput: rows.some((r: Row) => r.cachedInput !== null),
+  image: rows.some((r: Row) => r.image !== null),
+  audioPerSec: rows.some((r: Row) => r.audioPerSec !== null),
+  audioPerMin: rows.some((r: Row) => r.audioPerMin !== null),
+  videoPerSec: rows.some((r: Row) => r.videoPerSec !== null),
+  videoPerMin: rows.some((r: Row) => r.videoPerMin !== null),
+  embedding: rows.some((r: Row) => r.embedding !== null),
+};
+const hasAnyNotes = rows.some((r: Row) => r.notes !== null);
+const providerCountLabel =
+  rows.length === 1
+    ? detail.pricingProviderSingular
+    : detail.pricingProviderPlural.replace('{count}', String(rows.length));
+---
+
+<Layout title={data.name}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="text-xs text-neutral-500 flex items-center gap-1.5 mb-4">
+      <a href={`/${lang}/`} class="hover:text-neutral-300 transition-colors">{detail.breadcrumbHome}</a>
+      <ChevronRight class="w-3 h-3 opacity-60" />
+      <a href={`/${lang}/ai-models`} class="hover:text-neutral-300 transition-colors">{detail.breadcrumbCollection}</a>
+      <ChevronRight class="w-3 h-3 opacity-60" />
+      <span class="text-neutral-400 truncate">{data.name}</span>
+    </div>
+    <div class="glass-panel rounded-2xl p-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class={`p-3 rounded-xl border flex items-center justify-center shrink-0 ${iconColors}`}>
+            <IconComponent class="w-6 h-6" />
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-bold font-outfit text-base-content truncate">{data.name}</h1>
+            <div class="flex flex-wrap items-center gap-2.5 text-xs text-base-content/60 mt-1">
+              <span class="inline-flex items-center gap-1"><User class="w-3 h-3 opacity-60" />{data.author}</span>
+              {data.released && (
+                <>
+                  <span class="opacity-40">·</span>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-pink-500/20 bg-pink-500/5 text-pink-400 font-semibold">
+                    <Calendar class="w-3 h-3" />{data.released}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2 shrink-0">
+          <a href={`/${lang}/ai-models`} class="btn btn-sm btn-ghost rounded-lg border border-base-content/10 text-base-content/85 hover:text-base-content">
+            <ArrowLeft class="w-4 h-4" />
+            <span>{common.back}</span>
+          </a>
+          {data.url && (
+            <a href={data.url} target="_blank" rel="noopener noreferrer" class="btn btn-sm bg-pink-600 hover:bg-pink-700 border-none text-white rounded-lg shadow-lg shadow-pink-600/20">
+              <span>{common.tryModel}</span>
+              <ExternalLink class="w-3.5 h-3.5" />
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+    <div class="mt-6 glass-panel rounded-2xl p-6">
+      <p class="text-sm text-base-content/85 leading-relaxed">{data.description}</p>
+    </div>
+    {stats.length > 0 && (
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-6">
+        {stats.map((stat: Stat) => (
+          <div class="glass-panel rounded-xl p-4 flex flex-col gap-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{stat.label}</div>
+            <div class={`text-base sm:text-lg font-bold font-outfit truncate ${stat.tone ?? 'text-base-content'}`}>{stat.value}</div>
+            {stat.description && (
+              <div class="text-[11px] leading-snug text-base-content/60 mt-1" title={stat.description}>{stat.description}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+    {data.capabilities.length > 0 && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">{detail.sectionCapabilities}</div>
+        <Capabilities capabilities={data.capabilities} />
+      </div>
+    )}
+    {data.tags.length > 0 && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">{detail.sectionTags}</div>
+        <TagList tags={data.tags} />
+      </div>
+    )}
+    {hasSettings && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">{detail.sectionParameters}</div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+          {temperature !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{detail.paramTemperature}</span>
+              <span class="font-mono font-semibold text-base-content">{temperature}</span>
+            </div>
+          )}
+          {settings?.min_p !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{detail.paramMinP}</span>
+              <span class="font-mono font-semibold text-base-content">{settings.min_p}</span>
+            </div>
+          )}
+          {settings?.rep_pen !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{detail.paramRepPen}</span>
+              <span class="font-mono font-semibold text-base-content">{settings.rep_pen}</span>
+            </div>
+          )}
+          {settings?.top_p !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{detail.paramTopP}</span>
+              <span class="font-mono font-semibold text-base-content">{settings.top_p}</span>
+            </div>
+          )}
+          {settings?.top_k !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{detail.paramTopK}</span>
+              <span class="font-mono font-semibold text-base-content">{settings.top_k}</span>
+            </div>
+          )}
+          {settings?.presence_penalty !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{detail.paramPresence}</span>
+              <span class="font-mono font-semibold text-base-content">{settings.presence_penalty}</span>
+            </div>
+          )}
+          {settings?.frequency_penalty !== undefined && (
+            <div class="flex flex-col gap-1 border-l-2 border-pink-500/30 pl-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{detail.paramFrequency}</span>
+              <span class="font-mono font-semibold text-base-content">{settings.frequency_penalty}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+    {data.notes && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">{detail.sectionNotes}</div>
+        <div class="text-sm text-base-content/85 leading-relaxed whitespace-pre-wrap">{data.notes}</div>
+      </div>
+    )}
+    {hasPricing && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="flex items-baseline justify-between mb-4 gap-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-pink-500">{detail.sectionPricing}</div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-base-content/45">{providerCountLabel}</div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra w-full text-xs">
+            <thead>
+              <tr class="text-base-content/55 uppercase tracking-wider text-[10px]">
+                <th class="bg-transparent">{detail.colProvider}</th>
+                {show.textInput && <th class="bg-transparent text-right">{detail.colTextInput}</th>}
+                {show.textOutput && <th class="bg-transparent text-right">{detail.colTextOutput}</th>}
+                {show.cachedInput && <th class="bg-transparent text-right">{detail.colCachedInput}</th>}
+                {show.image && <th class="bg-transparent text-right">{detail.colImage}</th>}
+                {show.audioPerSec && <th class="bg-transparent text-right">{detail.colAudioPerSec}</th>}
+                {show.audioPerMin && <th class="bg-transparent text-right">{detail.colAudioPerMin}</th>}
+                {show.videoPerSec && <th class="bg-transparent text-right">{detail.colVideoPerSec}</th>}
+                {show.videoPerMin && <th class="bg-transparent text-right">{detail.colVideoPerMin}</th>}
+                {show.embedding && <th class="bg-transparent text-right">{detail.colEmbedding}</th>}
+                {hasAnyNotes && <th class="bg-transparent">{detail.colNotes}</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r: Row) => (
+                <tr class={r.isFree ? 'bg-success/10' : ''}>
+                  <td>
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="font-bold font-outfit text-base-content">{r.name}</span>
+                      {r.isFree && <span class="badge badge-success badge-xs font-bold">{detail.freeBadge}</span>}
+                    </div>
+                    {r.url && (
+                      <a href={r.url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[10px] text-primary hover:underline mt-0.5">
+                        <span>{detail.pricingPageLink}</span>
+                        <ExternalLink class="w-2.5 h-2.5" />
+                      </a>
+                    )}
+                  </td>
+                  {show.textInput && (<td class="text-right font-mono">{r.textInput ?? <span class="text-base-content/30">—</span>}</td>)}
+                  {show.textOutput && (<td class="text-right font-mono">{r.textOutput ?? <span class="text-base-content/30">—</span>}</td>)}
+                  {show.cachedInput && (<td class="text-right font-mono">{r.cachedInput ?? <span class="text-base-content/30">—</span>}</td>)}
+                  {show.image && (<td class="text-right font-mono">{r.image ?? <span class="text-base-content/30">—</span>}</td>)}
+                  {show.audioPerSec && (<td class="text-right font-mono">{r.audioPerSec ?? <span class="text-base-content/30">—</span>}</td>)}
+                  {show.audioPerMin && (<td class="text-right font-mono">{r.audioPerMin ?? <span class="text-base-content/30">—</span>}</td>)}
+                  {show.videoPerSec && (<td class="text-right font-mono">{r.videoPerSec ?? <span class="text-base-content/30">—</span>}</td>)}
+                  {show.videoPerMin && (<td class="text-right font-mono">{r.videoPerMin ?? <span class="text-base-content/30">—</span>}</td>)}
+                  {show.embedding && (<td class="text-right font-mono">{r.embedding ?? <span class="text-base-content/30">—</span>}</td>)}
+                  {hasAnyNotes && (<td class="text-[11px] text-base-content/65 italic max-w-xs">{r.notes ?? ''}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="text-[10px] text-base-content/40 mt-4">{detail.pricingDisclaimer}</p>
+      </div>
+    )}
+  </div>
+</Layout>

@@ -1,0 +1,134 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Card from '../../components/Card.astro';
+import ModelCard from '../../components/ModelCard.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { getEntry } from 'astro:content';
+import {
+  CONTENT_COLLECTIONS,
+  fetchCollection,
+  type ContentItem,
+} from '../../lib/collections';
+import { slugify } from '../../lib/slugify';
+import { getIntlayer, defaultLocale, locales, type LocalesValues } from 'intlayer';
+import type { ModelData, ResourceData } from '../../content.config';
+
+export function getStaticPaths() {
+  return (locales as readonly string[])
+    .filter((l) => l !== defaultLocale)
+    .flatMap((lang) =>
+      CONTENT_COLLECTIONS.map((collection) => ({
+        params: { lang, collection },
+      })),
+    );
+}
+
+const lang = Astro.params.lang as LocalesValues;
+if (lang === defaultLocale) {
+  return Astro.redirect(`/${Astro.params.collection}`);
+}
+
+const { collection } = Astro.params;
+
+if (!collection || !(CONTENT_COLLECTIONS as readonly string[]).includes(collection)) {
+  return Astro.redirect('/404');
+}
+
+const typedCollection = collection as (typeof CONTENT_COLLECTIONS)[number];
+const items = await fetchCollection(typedCollection);
+const navigation = await getEntry('navigation', typedCollection);
+
+if (!navigation) {
+  return Astro.redirect('/404');
+}
+
+interface Subcategory {
+  name: string;
+  slug: string;
+  items: ContentItem[];
+}
+interface Category {
+  name: string;
+  slug: string;
+  subcategories: Subcategory[];
+}
+
+const structuredData: Category[] = navigation.data.categories.map((cat) => ({
+  name: cat.name,
+  slug: slugify(cat.name),
+  subcategories: cat.subcategories.map((sub) => ({
+    name: sub,
+    slug: slugify(`${cat.name}-${sub}`),
+    items: items.filter(
+      (item) =>
+        item.data.category === cat.name && item.data.subcategory === sub,
+    ),
+  })),
+}));
+
+const isModelCollection = typedCollection === ('ai-models' as const);
+const common = getIntlayer('common', lang);
+---
+
+<Layout title={navigation.data.title}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <PageHeader
+      collection={typedCollection}
+      title={navigation.data.title}
+    />
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <Sidebar navigation={navigation.data} />
+      <div class="lg:col-span-9 flex flex-col gap-16" data-pagefind-body>
+        {structuredData.map((category) => {
+          const totalItems = category.subcategories.reduce(
+            (acc, sub) => acc + sub.items.length,
+            0,
+          );
+          return (
+            <section id={category.slug} class="flex flex-col gap-8 scroll-mt-24">
+              <div class="border-b border-white/5 pb-3 flex items-center justify-between">
+                <h2 class="font-outfit font-extrabold text-2xl text-neutral-200 uppercase tracking-wide">
+                  {category.name}
+                </h2>
+                <span class="text-xs font-medium text-neutral-500 px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800">
+                  {totalItems} {common.items}
+                </span>
+              </div>
+              <div class="flex flex-col gap-12">
+                {category.subcategories.map((sub) => (
+                  <div id={sub.slug} class="scroll-mt-24 subcategory-section">
+                    <h3 class="text-base font-bold text-neutral-300 flex items-center gap-2 mb-5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
+                      {sub.name}
+                      <span class="text-xs font-normal text-neutral-500">
+                        ({sub.items.length})
+                      </span>
+                    </h3>
+                    {sub.items.length > 0 ? (
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        {sub.items.map((item) =>
+                          isModelCollection ? (
+                            <ModelCard data={item.data as ModelData} />
+                          ) : (
+                            <Card data={item.data as ResourceData} />
+                          ),
+                        )}
+                      </div>
+                    ) : (
+                      <EmptyState />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+  <script>
+    import '../../scripts/scrollSpy.ts';
+  </script>
+</Layout>
