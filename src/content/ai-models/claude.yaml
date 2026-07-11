@@ -1,8 +1,13 @@
 name: "Claude"
 author: "Anthropic"
 released: "2024-06-21"
-format: "API"
-size: "Cloud"
+added_at: "2026-07-11"
+last_verified_at: "2026-07-11"
+verification_note: "Verified against Anthropic model and pricing pages."
+artifacts:
+  - format: "API"
+    size: "Cloud"
+    source: "api"
 description:
   en: "Anthropic's flagship AI model, known for natural dialogue, complex analysis, and long context windows."
   de: "Anthropics Flaggschiff-KI-Modell, bekannt für natürliche Dialoge, komplexe Analysen und lange Kontextfenster."

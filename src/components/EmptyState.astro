@@ -1,12 +1,22 @@
 ---
-import { getIntlayer } from 'intlayer';
+import {
+  getIntlayer,
+  getLocaleFromPath,
+  defaultLocale,
+  type LocalesValues,
+} from 'intlayer';
 
 interface Props {
   message?: string;
 }
 
 const { message } = Astro.props;
-const { noItems } = getIntlayer('common');
+const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
+  | LocalesValues
+  | undefined;
+const currentLocale: LocalesValues = (detectedLocale ??
+  defaultLocale) as LocalesValues;
+const { noItems } = getIntlayer('common', currentLocale);
 ---
 
 <div class="text-sm text-neutral-500 py-8 px-6 border border-dashed border-neutral-800 rounded-2xl text-center bg-[#121214]/10">

@@ -1,8 +1,13 @@
 name: "Sora"
 author: "OpenAI"
 released: "2024-12-09"
-format: "API"
-size: "Cloud"
+added_at: "2026-07-11"
+last_verified_at: "2026-07-11"
+verification_note: "Verified against OpenAI product and pricing references."
+artifacts:
+  - format: "API"
+    size: "Cloud"
+    source: "api"
 description:
   en: "OpenAI's flagship text-to-video generation model, capable of producing photorealistic clips up to a minute long from natural-language or image prompts."
   de: "OpenAIs Flaggschiff-Modell zur Text-zu-Video-Generierung, das fotorealistische Clips von bis zu einer Minute aus natürlichsprachlichen oder Bild-Prompts erzeugen kann."

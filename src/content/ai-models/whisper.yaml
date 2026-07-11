@@ -1,8 +1,14 @@
 name: "Whisper"
 author: "OpenAI"
 released: "2022-09-21"
-format: "PyTorch"
-size: "1.5B"
+added_at: "2026-07-11"
+last_verified_at: "2026-07-11"
+verification_note: "Verified against OpenAI API pricing and self-hosted repository listing."
+artifacts:
+  - format: "PyTorch"
+    size: "1.5B"
+    source: "self-hosted"
+    repository: "https://huggingface.co/openai/whisper-large-v3"
 description:
   en: "High-performance open speech-to-text and translation model by OpenAI."
   de: "Hochleistungs-Sprache-zu-Text- und Übersetzungsmodell von OpenAI."

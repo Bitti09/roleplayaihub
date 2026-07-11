@@ -30,7 +30,7 @@ const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
 const htmlLang: LocalesValues = (detectedLocale ?? defaultLocale) as LocalesValues;
 const homeHref = getLocalizedUrl(getPathWithoutLocale('/'), htmlLang);
 const { home: homeLabel } = getIntlayer('common', htmlLang);
-const { defaultDescription } = getIntlayer('collection');
+const { defaultDescription } = getIntlayer('collection', htmlLang);
 // title may be a plain string or a per-locale map; resolve it for display.
 const localizedTitle = resolveLocalized(title, htmlLang);
 const resolvedDescription =
@@ -41,7 +41,7 @@ const resolvedDescription =
   <div class="text-xs text-neutral-500 flex items-center gap-1.5 mb-3">
     <a href={homeHref} class="hover:text-neutral-300 transition-colors">{homeLabel}</a>
     <ChevronRight class="w-3 h-3 opacity-60" />
-    <span class="text-neutral-400 capitalize">{collection.replace('-', ' ')}</span>
+    <span class="text-neutral-400">{localizedTitle}</span>
   </div>
   <div class="flex items-center gap-4">
     <div class={`p-3 rounded-2xl border ${HEADER_ICON_GRADIENT}`}>

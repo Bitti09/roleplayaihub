@@ -9,10 +9,9 @@ import { getEntry } from 'astro:content';
 import {
   CONTENT_COLLECTIONS,
   fetchCollection,
-  type ContentItem,
+  isContentCollection,
 } from '../../lib/collections';
-import { slugify } from '../../lib/slugify';
-import { resolveLocalized } from '../../lib/localized';
+import { buildStructuredCollectionData } from '../../lib/collection-structure';
 import { getIntlayer, defaultLocale, locales, type LocalesValues } from 'intlayer';
 import type { ModelData, ResourceData } from '../../content.config';
 
@@ -33,11 +32,11 @@ if (lang === defaultLocale) {
 
 const { collection } = Astro.params;
 
-if (!collection || !(CONTENT_COLLECTIONS as readonly string[]).includes(collection)) {
+if (!collection || !isContentCollection(collection)) {
   return Astro.redirect('/404');
 }
 
-const typedCollection = collection as (typeof CONTENT_COLLECTIONS)[number];
+const typedCollection = collection;
 const items = await fetchCollection(typedCollection);
 const navigation = await getEntry('navigation', typedCollection);
 
@@ -46,42 +45,12 @@ if (!navigation) {
 }
 
 const defaultLocaleStr = defaultLocale as string;
-
-interface Subcategory {
-  name: string;
-  slug: string;
-  items: ContentItem[];
-}
-interface Category {
-  name: string;
-  slug: string;
-  subcategories: Subcategory[];
-}
-
-// Build the per-locale navigation tree. Display labels and anchor slugs
-// use the URL locale; item filtering uses the default-locale value to
-// match the canonical category / subcategory strings declared in each item YAML.
-const structuredData: Category[] = navigation.data.categories.map((cat) => {
-  const localizedCatName = resolveLocalized(cat.name, lang);
-  const defaultCatName = resolveLocalized(cat.name, defaultLocaleStr);
-  return {
-    name: localizedCatName,
-    slug: slugify(localizedCatName),
-    subcategories: cat.subcategories.map((sub) => {
-      const localizedSub = resolveLocalized(sub, lang);
-      const defaultSub = resolveLocalized(sub, defaultLocaleStr);
-      return {
-        name: localizedSub,
-        slug: slugify(`${localizedCatName}-${localizedSub}`),
-        items: items.filter(
-          (item) =>
-            item.data.category === defaultCatName &&
-            item.data.subcategory === defaultSub,
-        ),
-      };
-    }),
-  };
-});
+const structuredData = buildStructuredCollectionData(
+  navigation.data,
+  items,
+  lang,
+  defaultLocaleStr,
+);
 
 const isModelCollection = typedCollection === ('ai-models' as const);
 const common = getIntlayer('common', lang);

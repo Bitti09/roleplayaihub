@@ -18,10 +18,13 @@ import {
 import { idFromName } from '../../lib/slugify';
 import { colorForName } from '../../lib/colors';
 import { resolveIcon } from '../../lib/icons';
-import { resolveLocalized } from '../../lib/localized';
+import {
+  buildModelDetailViewData,
+  type PricingRow,
+} from '../../lib/model-detail';
 import TagList from '../../components/TagList.astro';
 import Capabilities from '../../components/Capabilities.astro';
-import type { ModelData, Provider } from '../../content.config';
+import type { ModelData } from '../../content.config';
 
 export async function getStaticPaths() {
   const models = await getCollection('ai-models');
@@ -40,8 +43,6 @@ const iconColors = colorForName(data.name);
 // This page renders the unprefixed default-locale routes (e.g.
 // `/ai-models/chatgpt/`). All copy shown here uses the default locale.
 const currentLocale = defaultLocale as string;
-const localizedDescription = resolveLocalized(data.description, currentLocale);
-const localizedNotes = resolveLocalized(data.notes, currentLocale);
 
 // Locale-aware URLs for breadcrumb + back button. This page only renders
 // the default-locale routes, so currentLocale is always defaultLocale, but
@@ -55,176 +56,21 @@ const aiModelsHref = getLocalizedUrl(
 
 const common = getIntlayer('common');
 const detail = getIntlayer('model-detail');
-
-// Build the list of stat cells. Anything with `undefined` value is skipped so
-// the grid only shows fields the YAML actually filled in. `description`
-// (optional) renders as a muted subtitle below the value - used today by
-// the Content Policy cell to expand on what each tier means in practice.
-type Stat = { label: string; value: string; tone?: string; description?: string };
-
-type NsfwTier = NonNullable<ModelData['nsfw']>;
-
-const nsfwTone: Record<NsfwTier, string> = {
-  allowed: 'text-emerald-400',
-  limited: 'text-amber-400',
-  blocked: 'text-red-400',
-};
-
-/**
- * Short, neutral explanations of what each content-policy tier means.
- * The phrasing keeps the project for everyone but doesn't hide the fact
- * that some models are more permissive than others.
- */
-const nsfwDescription: Record<NsfwTier, string> = {
-  blocked: detail.nsfwBlockedDescription,
-  limited: detail.nsfwLimitedDescription,
-  allowed: detail.nsfwAllowedDescription,
-};
-
-const nsfwLabels: Record<NsfwTier, string> = {
-  blocked: detail.nsfwBlocked,
-  limited: detail.nsfwLimited,
-  allowed: detail.nsfwAllowed,
-};
-
-const nsfwValue: NsfwTier = data.nsfw ?? 'blocked';
-const nsfwLabel = nsfwLabels[nsfwValue];
-
-const stats: Stat[] = [
-  { label: detail.statContextWindow, value: data.context },
-  { label: detail.statFormat, value: data.format },
-  { label: detail.statSize, value: data.size },
-  { label: detail.statLicense, value: data.license },
-  {
-    label: detail.statContentPolicy,
-    value: nsfwLabel,
-    tone: nsfwTone[nsfwValue],
-    description: nsfwDescription[nsfwValue],
-  },
-  { label: detail.statBaseModel, value: data.baseModel ?? '—' },
-  { label: detail.statReleased, value: data.released ?? '—' },
-  { label: detail.statAuthor, value: data.author },
-].filter((s) => s.value && s.value !== '—');
-
-// Settings: same display order as the modal on the card.
-const settings = data.settings;
-const temperature = data.temperature;
-const hasSettings =
-  temperature !== undefined ||
-  (settings !== undefined &&
-    Object.values(settings).some((v) => v !== undefined));
-
-// ── Pricing section ────────────────────────────────────────────────
-// A model can be served by one or more providers, each carrying its own
-// priced line items. The section renders as a comparison table at the
-// bottom of the page: rows = providers, columns = pricing dimensions.
-// `normalizeProvider` flattens each provider's line items into a single
-// row keyed by dimension; `show` then auto-detects which columns any
-// provider actually uses so we don't waste space on empty columns.
-type Cell = string | null;
-type Row = {
-  name: string;
-  url: string | null;
-  notes: string | null;
-  isFree: boolean;
-  textInput: Cell;
-  textOutput: Cell;
-  cachedInput: Cell;
-  image: Cell;
-  audioPerSec: Cell;
-  audioPerMin: Cell;
-  videoPerSec: Cell;
-  videoPerMin: Cell;
-  embedding: Cell;
-};
-
-const providers: Provider[] | undefined = data.price;
-const hasPricing = providers !== undefined && providers.length > 0;
-
-function fmt(n: number, c: 'USD' | 'EUR'): string {
-  return (c === 'EUR' ? '€' : '$') + n.toFixed(4);
-}
-
-function normalizeProvider(p: Provider): Row {
-  const row: Row = {
-    name: p.provider,
-    url: p.url ?? null,
-    notes: p.notes ?? null,
-    isFree: false,
-    textInput: null,
-    textOutput: null,
-    cachedInput: null,
-    image: null,
-    audioPerSec: null,
-    audioPerMin: null,
-    videoPerSec: null,
-    videoPerMin: null,
-    embedding: null,
-  };
-  // A provider is "free" only if every line item is the `free` variant.
-  // As soon as a paid line item appears the row flips to paid.
-  let hasPaid = false;
-  for (const line of p.pricing ?? []) {
-    switch (line.type) {
-      case 'text':
-        hasPaid = true;
-        row.textInput = fmt(line.input, line.currency);
-        row.textOutput = fmt(line.output, line.currency);
-        if (line.cachedInput !== undefined) {
-          row.cachedInput = fmt(line.cachedInput, line.currency);
-        }
-        break;
-      case 'image':
-        hasPaid = true;
-        row.image = fmt(line.perImage, line.currency);
-        break;
-      case 'audio':
-        hasPaid = true;
-        if (line.perSecond !== undefined)
-          row.audioPerSec = fmt(line.perSecond, line.currency);
-        if (line.perMinute !== undefined)
-          row.audioPerMin = fmt(line.perMinute, line.currency);
-        break;
-      case 'video':
-        hasPaid = true;
-        row.videoPerSec = fmt(line.perSecond, line.currency);
-        if (line.perMinute !== undefined)
-          row.videoPerMin = fmt(line.perMinute, line.currency);
-        break;
-      case 'embedding':
-        hasPaid = true;
-        row.embedding = fmt(line.input, line.currency);
-        break;
-      case 'free':
-        // counted only when no paid line item co-exists
-        break;
-    }
-  }
-  row.isFree = !hasPaid;
-  return row;
-}
-
-const rows: Row[] = (providers ?? []).map(normalizeProvider);
-
-// Auto-detect which columns are populated by *any* provider so the
-// table only shows dimensions that actually carry comparison value.
-const show = {
-  textInput: rows.some((r) => r.textInput !== null),
-  textOutput: rows.some((r) => r.textOutput !== null),
-  cachedInput: rows.some((r) => r.cachedInput !== null),
-  image: rows.some((r) => r.image !== null),
-  audioPerSec: rows.some((r) => r.audioPerSec !== null),
-  audioPerMin: rows.some((r) => r.audioPerMin !== null),
-  videoPerSec: rows.some((r) => r.videoPerSec !== null),
-  videoPerMin: rows.some((r) => r.videoPerMin !== null),
-  embedding: rows.some((r) => r.embedding !== null),
-};
-const hasAnyNotes = rows.some((r) => r.notes !== null);
-
-const providerCountLabel =
-  rows.length === 1
-    ? detail.pricingProviderSingular
-    : detail.pricingProviderPlural.replace('{count}', String(rows.length));
+const {
+  localizedDescription,
+  localizedNotes,
+  stats,
+  metadata,
+  hasMetadata,
+  settings,
+  temperature,
+  hasSettings,
+  rows,
+  show,
+  hasAnyNotes,
+  hasPricing,
+  providerCountLabel,
+} = buildModelDetailViewData(data, currentLocale, detail);
 ---
 
 <Layout title={data.name}>
@@ -296,15 +142,35 @@ const providerCountLabel =
       </p>
     </div>
 
+    {hasMetadata && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">
+          {detail.sectionMetadata}
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {metadata.map((item) => (
+            <div class="rounded-xl border border-base-content/10 bg-base-100/20 px-4 py-3">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+                {item.label}
+              </div>
+              <div class="text-sm text-base-content/85 mt-1 whitespace-pre-wrap break-words">
+                {item.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
     <!-- Stats grid -->
     {stats.length > 0 && (
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-6">
         {stats.map((stat) => (
           <div class="glass-panel rounded-xl p-4 flex flex-col gap-1">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
+            <div class={stat.labelClass ?? 'text-[10px] font-bold uppercase tracking-wider text-base-content/50'}>
               {stat.label}
             </div>
-            <div class={`text-base sm:text-lg font-bold font-outfit truncate ${stat.tone ?? 'text-base-content'}`}>
+            <div class={`${stat.valueClass ?? 'text-base sm:text-lg font-bold font-outfit truncate'} ${stat.tone ?? 'text-base-content'}`}>
               {stat.value}
             </div>
             {stat.description && (
@@ -450,7 +316,7 @@ const providerCountLabel =
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {rows.map((r: PricingRow) => (
                 <tr class={r.isFree ? 'bg-success/10' : ''}>
                   <td>
                     <div class="flex items-center gap-2 min-w-0">

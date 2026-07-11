@@ -128,6 +128,16 @@ const providerSchema = z.object({
 /** Optional at the model level - not every model has public pricing. */
 const modelPricesSchema = z.array(providerSchema).optional();
 
+const modelArtifactSchema = z.object({
+  format: z.string(),
+  size: z.string(),
+  source: z.enum(['api', 'self-hosted']).optional(),
+  repository: z.url().optional(),
+  quantizations: z.array(z.string()).optional().default([]),
+});
+
+const modelArtifactsSchema = z.array(modelArtifactSchema).min(1);
+
 const resourceSchema = z.object({
   name: z.string(),
   description: localizedStringSchema,
@@ -158,9 +168,11 @@ const modelSchema = z.object({
   name: z.string(),
   author: z.string().optional().default('Unknown'),
   released: z.string().optional(),
-  format: z.string().optional().default('GGUF'),
-  size: z.string().optional().default('Unknown'),
+  artifacts: modelArtifactsSchema,
   description: localizedStringSchema,
+  added_at: z.string().optional(),
+  last_verified_at: z.string().optional(),
+  verification_note: z.string().optional(),
   context: z.string().optional().default('8k'),
   temperature: z.number().optional(),
   settings: settingsSchema,

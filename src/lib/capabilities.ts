@@ -18,12 +18,12 @@ export interface CapabilityDef {
  * The id keys here must match `CAPABILITY_IDS` in `content.config.ts`.
  */
 export const CAPABILITIES: Record<string, CapabilityDef> = {
-  Vision:       { icon: Image,    color: 'text-teal-400',    label: 'Vision' },
-  'Audio Input': { icon: Mic,      color: 'text-purple-400',  label: 'Audio Input' },
-  'Video Input': { icon: Video,    color: 'text-rose-400',    label: 'Video Input' },
-  Reasoning:    { icon: Brain,    color: 'text-amber-400',   label: 'Reasoning' },
-  'PDF Upload': { icon: FileText, color: 'text-blue-400',    label: 'PDF Upload' },
-  'Tool Calling': { icon: Wrench,  color: 'text-orange-400',  label: 'Tool Calling' },
+  Vision:       { icon: Image,    color: 'text-cyan-400',     label: 'Vision' },
+  'Audio Input': { icon: Mic,      color: 'text-fuchsia-400',  label: 'Audio Input' },
+  'Video Input': { icon: Video,    color: 'text-rose-400',     label: 'Video Input' },
+  Reasoning:    { icon: Brain,    color: 'text-amber-400',    label: 'Reasoning' },
+  'PDF Upload': { icon: FileText, color: 'text-sky-400',      label: 'PDF Upload' },
+  'Tool Calling': { icon: Wrench,  color: 'text-orange-400',   label: 'Tool Calling' },
 };
 
 /**
@@ -36,7 +36,7 @@ export const CAPABILITY_ORDER = [
   'Reasoning',
   'PDF Upload',
   'Tool Calling',
-] as const;
+] as const satisfies readonly (keyof typeof CAPABILITIES)[];
 
 /**
  * Look up a capability by id, falling back to a sensible default if the YAML
@@ -53,10 +53,20 @@ export function getCapability(id: string): CapabilityDef | undefined {
 export function normalizeCapabilities(
   ids: readonly string[],
 ): Array<keyof typeof CAPABILITIES> {
-  const known = ids.filter((id): id is keyof typeof CAPABILITIES =>
-    Object.prototype.hasOwnProperty.call(CAPABILITIES, id),
-  );
-  const ordered = CAPABILITY_ORDER.filter((id) => known.includes(id));
-  const extras = known.filter((id) => !(CAPABILITY_ORDER as readonly string[]).includes(id));
-  return [...ordered, ...extras];
+  const known = new Set<keyof typeof CAPABILITIES>();
+  for (const id of ids) {
+    if (Object.prototype.hasOwnProperty.call(CAPABILITIES, id)) {
+      known.add(id as keyof typeof CAPABILITIES);
+    }
+  }
+
+  const ordered: Array<keyof typeof CAPABILITIES> = [];
+  for (const id of CAPABILITY_ORDER) {
+    if (known.has(id)) {
+      ordered.push(id);
+      known.delete(id);
+    }
+  }
+
+  return [...ordered, ...known];
 }

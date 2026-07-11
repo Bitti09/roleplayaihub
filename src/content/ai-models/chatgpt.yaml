@@ -1,8 +1,13 @@
 name: "ChatGPT"
 author: "OpenAI"
 released: "2022-11-30"
-format: "API"
-size: "Cloud"
+added_at: "2026-07-11"
+last_verified_at: "2026-07-11"
+verification_note: "Verified against OpenAI model and pricing pages."
+artifacts:
+  - format: "API"
+    size: "Cloud"
+    source: "api"
 description:
   en: "State-of-the-art conversational AI model by OpenAI, ideal for chat, coding, and logical reasoning."
   de: "Modernstes Konversations-KI-Modell von OpenAI, ideal für Chat, Programmierung und logisches Schlussfolgern."

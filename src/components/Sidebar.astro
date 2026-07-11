@@ -15,7 +15,6 @@ interface Props {
 }
 
 const { navigation } = Astro.props;
-const { navigation: navHeading } = getIntlayer('common');
 
 // Resolve the current locale from the URL so the sidebar labels and
 // anchor slugs stay in the user locale.
@@ -24,6 +23,7 @@ const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
   | undefined;
 const currentLocale: LocalesValues = (detectedLocale ??
   defaultLocale) as LocalesValues;
+const { navigation: navHeading } = getIntlayer('common', currentLocale);
 ---
 
 <aside class="hidden lg:block lg:col-span-3 sticky top-24 self-start max-h-[80vh] overflow-y-auto pr-2">

@@ -51,13 +51,6 @@ export function isContentCollection(value: string): value is ContentCollection {
  */
 export async function fetchCollection<C extends ContentCollection>(
   collection: C,
-): Promise<CollectionEntry<C>[]>;
-export async function fetchCollection(
-  collection: string,
-): Promise<ContentItem[]>;
-export async function fetchCollection(
-  collection: string,
-): Promise<ContentItem[]> {
-  if (!isContentCollection(collection)) return [];
-  return (await getCollection(collection)) as ContentItem[];
+): Promise<CollectionEntry<C>[]> {
+  return getCollection(collection);
 }

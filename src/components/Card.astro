@@ -23,7 +23,6 @@ const { name, description, url, tags, icon } = data;
 const cardId = idFromName(name);
 const IconComponent = resolveIcon(icon);
 const iconColors = colorForName(name);
-const { visitSite } = getIntlayer('common');
 
 // Resolve the current locale from the URL so the description stays in
 // the user locale. The description field may be either a plain string
@@ -33,6 +32,7 @@ const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
   | undefined;
 const currentLocale: LocalesValues = (detectedLocale ??
   defaultLocale) as LocalesValues;
+const { visitSite } = getIntlayer('common', currentLocale);
 const localizedDescription = resolveLocalized(description, currentLocale);
 ---
 

@@ -9,8 +9,10 @@ import {
 import {
   getIntlayer,
   getLocaleFromPath,
+  defaultLocale,
   getPathWithoutLocale,
   getLocalizedUrl,
+  type LocalesValues,
 } from 'intlayer';
 import type { ModelData } from '../content.config';
 import { idFromName } from '../lib/slugify';
@@ -18,7 +20,6 @@ import { colorForName } from '../lib/colors';
 import { resolveIcon } from '../lib/icons';
 import { resolveLocalized } from '../lib/localized';
 import Capabilities from './Capabilities.astro';
-import ModelSettingsModal from './ModelSettingsModal.astro';
 
 interface Props {
   data: ModelData;
@@ -31,15 +32,16 @@ const {
   author,
   released,
   description,
-  size,
-  format,
   context,
   license,
   nsfw,
   capabilities,
-  settings,
-  temperature,
+  artifacts,
 } = data;
+
+const primaryArtifact = artifacts[0];
+const artifactFormat = primaryArtifact?.format ?? 'N/A';
+const artifactSize = primaryArtifact?.size ?? 'N/A';
 
 const cardId = idFromName(name);
 const IconComponent = resolveIcon(data.icon);
@@ -50,7 +52,11 @@ const IconComponent = resolveIcon(data.icon);
  * locale-prefixed pages (`/de/ai-models/...`), so we read the URL path
  * instead of relying on a `lang` prop.
  */
-const currentLocale = (getLocaleFromPath(Astro.url.pathname) ?? 'en') as string;
+const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
+  | LocalesValues
+  | undefined;
+const currentLocale: LocalesValues = (detectedLocale ??
+  defaultLocale) as LocalesValues;
 const localizedDescription = resolveLocalized(description, currentLocale);
 const cardHref = getLocalizedUrl(
   getPathWithoutLocale(`/ai-models/${cardId}`),
@@ -64,8 +70,22 @@ const cardHref = getLocalizedUrl(
 const iconColor =
   colorForName(name).split(' ').find((c) => c.startsWith('text-')) ?? 'text-pink-400';
 
-const common = getIntlayer('common');
-const detail = getIntlayer('model-detail');
+const common = getIntlayer('common', currentLocale);
+const detail = getIntlayer('model-detail', currentLocale);
+
+function localizeLicense(value: string | undefined): string | undefined {
+  if (!value) return value;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'open weight' || normalized === 'open-weight') {
+    return common.licenseOpenWeight;
+  }
+  if (normalized === 'proprietary') {
+    return common.licenseProprietary;
+  }
+  return value;
+}
+
+const localizedLicense = localizeLicense(license);
 
 /**
  * NSFW content-policy pill — visible on every card because content
@@ -96,17 +116,10 @@ const nsfwPill: Record<
 };
 const nsfwInfo = nsfwPill[nsfw ?? 'blocked'];
 
-/**
- * Whether the model has any recommended parameters to surface in the modal.
- * Drives the conditional "Settings" footer button.
- */
-const hasSettings =
-  temperature !== undefined ||
-  (settings !== undefined && Object.values(settings).some((v) => v !== undefined));
 ---
 
 <article
-  class="card glass-panel overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-[0_0_30px_-5px] hover:shadow-pink-500/20 flex flex-col"
+  class="card glass-panel overflow-hidden rounded-2xl border border-base-content/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_42px_-10px] hover:shadow-pink-500/30 hover:border-pink-500/35 flex flex-col"
 >
   <div class="px-5 pt-5 pb-4 flex flex-col gap-3.5 grow">
     <!-- Header: small icon + name on top, slug id + NSFW pill below -->
@@ -124,10 +137,10 @@ const hasSettings =
         <div class="flex items-center gap-2 mt-1 flex-wrap">
           <div class="text-[11px] text-base-content/40 font-mono truncate">{cardId}</div>
           <span
-            class={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${nsfwInfo.classes}`}
+            class={`inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${nsfwInfo.classes}`}
             role="status"
           >
-            <nsfwInfo.Icon class="w-3 h-3" aria-hidden="true" />
+            <nsfwInfo.Icon class="w-3.5 h-3.5" aria-hidden="true" />
             {nsfwInfo.label}
           </span>
         </div>
@@ -135,7 +148,7 @@ const hasSettings =
     </header>
 
     <!-- Description -->
-    <p class="text-sm text-base-content/70 leading-relaxed line-clamp-3">
+    <p class="text-sm text-base-content/75 leading-relaxed line-clamp-3 min-h-18">
       {localizedDescription}
     </p>
 
@@ -146,68 +159,61 @@ const hasSettings =
     <dl class="grid grid-cols-3 text-center">
       <div class="flex flex-col gap-0.5 px-1">
         <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">{common.context}</dt>
-        <dd class="text-sm font-bold text-base-content truncate">{context}</dd>
+        <dd class="text-base font-extrabold text-base-content truncate">{context}</dd>
       </div>
       <div class="flex flex-col gap-0.5 px-1 border-x border-base-content/8">
         <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">{common.size}</dt>
-        <dd class="text-sm font-bold text-base-content truncate">{size}</dd>
+        <dd class="text-base font-extrabold text-base-content truncate">{artifactSize}</dd>
       </div>
       <div class="flex flex-col gap-0.5 px-1">
         <dt class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">{common.format}</dt>
-        <dd class="text-sm font-bold text-base-content truncate">{format}</dd>
+        <dd class="text-base font-extrabold text-base-content truncate">{artifactFormat}</dd>
       </div>
     </dl>
 
     <hr class="border-base-content/10 m-0" />
 
     <!-- Features: label + compact capability icons row -->
-    {capabilities.length > 0 && (
-      <section class="flex flex-col gap-2">
+    <section class="flex flex-col gap-2 min-h-9">
+      {capabilities.length > 0 ? (
+        <>
         <div class="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">{common.features}</div>
         <Capabilities capabilities={capabilities} size="xs" />
-      </section>
-    )}
+        </>
+      ) : (
+        <span class="text-[10px] text-base-content/30 uppercase tracking-wider">{common.features}</span>
+      )}
+    </section>
 
     <!-- Meta strip: released + author + license (inline, subtle) -->
-    <footer class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-base-content/60 mt-auto pt-1">
+    <footer class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-base-content/75 leading-5 mt-auto pt-1">
       {released && (
         <span class="inline-flex items-center gap-1">
-          <Calendar class="w-3 h-3 opacity-60" />
+          <Calendar class="w-3 h-3 opacity-75" />
           {released}
         </span>
       )}
       <span class="inline-flex items-center gap-1">
-        <User class="w-3 h-3 opacity-60" />
-        by <span class="text-base-content/80 font-medium">{author}</span>
+        <User class="w-3 h-3 opacity-75" />
+        {common.by} <span class="text-base-content/80 font-medium">{author}</span>
       </span>
-      {license && (
+      {localizedLicense && (
         <span class="inline-flex items-center gap-1">
-          <ShieldCheck class="w-3 h-3 opacity-60" />
-          {license}
+          <ShieldCheck class="w-3 h-3 opacity-75" />
+          {localizedLicense}
         </span>
       )}
     </footer>
   </div>
 
-  <!-- Action bar: primary "Details" + optional "Settings" (borderless) -->
-  <div class="flex border-t border-base-content/10 divide-x divide-base-content/10 mt-auto">
+  <!-- Action bar: single primary action -->
+  <div class="flex border-t border-base-content/10 mt-auto">
     <a
       href={cardHref}
-      class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 hover:text-pink-200 transition-colors"
+      class="w-full flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 hover:text-pink-200 transition-colors"
     >
       <span>{common.details}</span>
       <span aria-hidden="true">&rarr;</span>
     </a>
-    {hasSettings && (
-      <button
-        type="button"
-        class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium hover:bg-base-content/5 text-base-content/70 transition-colors"
-        onclick={`document.getElementById('modal-${cardId}').showModal()`}
-      >
-        <span>{common.settings}</span>
-      </button>
-    )}
   </div>
-
-  <ModelSettingsModal name={name} cardId={cardId} data={data} />
 </article>

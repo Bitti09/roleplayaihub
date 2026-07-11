@@ -13,6 +13,7 @@ const modelDetailContent = {
 
     sectionCapabilities: t({ en: 'Capabilities', de: 'Fähigkeiten' }),
     sectionTags: t({ en: 'Tags', de: 'Schlagwörter' }),
+    sectionMetadata: t({ en: 'Metadata', de: 'Metadaten' }),
     sectionParameters: t({ en: 'Recommended Parameters', de: 'Empfohlene Parameter' }),
     sectionNotes: t({ en: 'Notes', de: 'Notizen' }),
     sectionPricing: t({ en: 'Pricing', de: 'Preise' }),
@@ -55,6 +56,10 @@ const modelDetailContent = {
     statBaseModel: t({ en: 'Base Model', de: 'Basismodell' }),
     statReleased: t({ en: 'Released', de: 'Veröffentlicht' }),
     statAuthor: t({ en: 'Author', de: 'Autor' }),
+    statQuantizations: t({ en: 'Quants', de: 'Quants' }),
+    metaAddedAt: t({ en: 'Added At', de: 'Hinzugefügt Am' }),
+    metaLastVerifiedAt: t({ en: 'Last Verified At', de: 'Zuletzt Geprüft Am' }),
+    metaVerificationNote: t({ en: 'Verification Note', de: 'Verifizierungsnotiz' }),
 
     // Recommended Parameters labels (used on detail page + modal)
     paramTemperature: t({ en: 'Temperature', de: 'Temperatur' }),

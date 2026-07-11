@@ -12,10 +12,8 @@ import {
   fetchCollection,
   isContentCollection,
   type ContentCollection,
-  type ContentItem,
 } from '../lib/collections';
-import { slugify } from '../lib/slugify';
-import { resolveLocalized } from '../lib/localized';
+import { buildStructuredCollectionData } from '../lib/collection-structure';
 import {
   getIntlayer,
   getLocaleFromPath,
@@ -51,44 +49,12 @@ const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
 const currentLocale: LocalesValues = (detectedLocale ??
   defaultLocale) as LocalesValues;
 const defaultLocaleStr = defaultLocale as string;
-
-interface Subcategory {
-  name: string;
-  slug: string;
-  items: ContentItem[];
-}
-
-interface Category {
-  name: string;
-  slug: string;
-  subcategories: Subcategory[];
-}
-
-// Build the per-locale navigation tree. Display labels and anchor slugs
-// use the current locale (so DE pages get German slugs and headings);
-// item filtering uses the default-locale value to match the canonical
-// category / subcategory strings declared in each item YAML.
-const structuredData: Category[] = navigation.data.categories.map((cat) => {
-  const localizedCatName = resolveLocalized(cat.name, currentLocale);
-  const defaultCatName = resolveLocalized(cat.name, defaultLocaleStr);
-  return {
-    name: localizedCatName,
-    slug: slugify(localizedCatName),
-    subcategories: cat.subcategories.map((sub) => {
-      const localizedSub = resolveLocalized(sub, currentLocale);
-      const defaultSub = resolveLocalized(sub, defaultLocaleStr);
-      return {
-        name: localizedSub,
-        slug: slugify(`${localizedCatName}-${localizedSub}`),
-        items: items.filter(
-          (item) =>
-            item.data.category === defaultCatName &&
-            item.data.subcategory === defaultSub,
-        ),
-      };
-    }),
-  };
-});
+const structuredData = buildStructuredCollectionData(
+  navigation.data,
+  items,
+  currentLocale,
+  defaultLocaleStr,
+);
 
 const isModelCollection = collection === ('ai-models' satisfies ContentCollection);
 const common = getIntlayer('common');

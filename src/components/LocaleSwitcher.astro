@@ -16,6 +16,7 @@
 import {
   locales,
   defaultLocale,
+  getIntlayer,
   getLocaleFromPath,
   getPathWithoutLocale,
   getLocalizedUrl,
@@ -30,6 +31,7 @@ const activeLocale: LocalesValues =
   (detected && typedLocales.includes(detected) ? detected : defaultLocale) as LocalesValues;
 
 const pathWithoutLocale = getPathWithoutLocale(Astro.url.pathname);
+const common = getIntlayer('common', activeLocale);
 ---
 
 <details class="locale-switcher group relative" data-locale-switcher>
@@ -38,8 +40,8 @@ const pathWithoutLocale = getPathWithoutLocale(Astro.url.pathname);
     data-locales={typedLocales.join(',')}
     data-current-locale={activeLocale}
     aria-haspopup="listbox"
-    aria-label="Language"
-    title="Language"
+    aria-label={common.language}
+    title={common.language}
     class="locale-summary inline-flex items-center justify-center gap-1 min-w-9 h-8 px-2 rounded-lg text-[10px] font-extrabold uppercase tracking-wider cursor-pointer select-none transition-all"
   >
     <span data-locale-label>{activeLocale}</span>
@@ -60,7 +62,7 @@ const pathWithoutLocale = getPathWithoutLocale(Astro.url.pathname);
   <ul
     class="locale-menu absolute right-0 mt-2 min-w-32 rounded-xl border border-base-content/10 bg-base-200/95 backdrop-blur-lg shadow-xl shadow-black/20 py-1 z-50"
     role="listbox"
-    aria-label="Available languages"
+    aria-label={common.availableLanguages}
   >
     {
       typedLocales.map((localeItem) => (

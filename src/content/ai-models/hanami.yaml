@@ -1,8 +1,15 @@
 name: Hanami v2.1
 author: "alpindale"
 released: "2026-06-12"
-format: EXL2
-size: 7B
+added_at: "2026-07-11"
+last_verified_at: "2026-07-11"
+verification_note: "Verified against self-hosted repository listing and model card."
+artifacts:
+  - format: "EXL2"
+    size: "7B"
+    source: "self-hosted"
+    repository: "https://huggingface.co/alpindale/Hanami-7B-v2.1"
+    quantizations: ["3.0bpw", "4.0bpw", "5.0bpw"]
 description:
   en: "Specialized in deep, narrative roleplay. Offers excellent logical consistency."
   de: "Dieses Modell ist spezialisiert auf tiefgreifendes, narratives Roleplay. Es bietet exzellente logische Konsistenz."

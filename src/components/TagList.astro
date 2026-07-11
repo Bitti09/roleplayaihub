@@ -1,5 +1,10 @@
 ---
-import { getIntlayer } from 'intlayer';
+import {
+  getIntlayer,
+  getLocaleFromPath,
+  defaultLocale,
+  type LocalesValues,
+} from 'intlayer';
 
 interface Props {
   tags: string[];
@@ -7,7 +12,12 @@ interface Props {
 }
 
 const { tags, label } = Astro.props;
-const { tags: defaultLabel } = getIntlayer('common');
+const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
+  | LocalesValues
+  | undefined;
+const currentLocale: LocalesValues = (detectedLocale ??
+  defaultLocale) as LocalesValues;
+const { tags: defaultLabel } = getIntlayer('common', currentLocale);
 ---
 
 {tags.length > 0 && (

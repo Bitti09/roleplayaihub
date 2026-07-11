@@ -9,14 +9,17 @@ import {
 } from '@lucide/astro';
 import { getCollection } from 'astro:content';
 import { getIntlayer, defaultLocale, locales, type LocalesValues } from 'intlayer';
-import { resolveLocalized } from '../../../lib/localized';
+import {
+  buildModelDetailViewData,
+  type PricingRow,
+} from '../../../lib/model-detail';
 
 import { idFromName } from '../../../lib/slugify';
 import { colorForName } from '../../../lib/colors';
 import { resolveIcon } from '../../../lib/icons';
 import TagList from '../../../components/TagList.astro';
 import Capabilities from '../../../components/Capabilities.astro';
-import type { ModelData, Provider } from '../../../content.config';
+import type { ModelData } from '../../../content.config';
 
 export async function getStaticPaths() {
   const models = await getCollection('ai-models');
@@ -25,6 +28,7 @@ export async function getStaticPaths() {
     .flatMap((lang) =>
       models.map((model) => ({
         params: { lang, slug: idFromName(model.data.name) },
+        props: { model },
       })),
     );
 }
@@ -34,168 +38,28 @@ if (lang === defaultLocale) {
   return Astro.redirect(`/ai-models/${Astro.params.slug}`);
 }
 
-const slug = Astro.params.slug;
-const models = await getCollection('ai-models');
-const model = models.find((m) => idFromName(m.data.name) === slug);
-if (!model) {
-  return Astro.redirect('/404');
-}
-
+const { model } = Astro.props;
 const data: ModelData = model.data;
 const IconComponent = resolveIcon(data.icon);
 const iconColors = colorForName(data.name);
 
 const common = getIntlayer('common', lang);
 const detail = getIntlayer('model-detail', lang);
-
-// Resolve the model description against the active route's locale.
-const localizedDescription = resolveLocalized(data.description, lang as string);
-const localizedNotes = resolveLocalized(data.notes, lang as string);
-
-type Stat = { label: string; value: string; tone?: string; description?: string };
-type NsfwTier = NonNullable<ModelData['nsfw']>;
-
-const nsfwTone: Record<NsfwTier, string> = {
-  allowed: 'text-emerald-400',
-  limited: 'text-amber-400',
-  blocked: 'text-red-400',
-};
-
-const nsfwDescription: Record<NsfwTier, string> = {
-  blocked: detail.nsfwBlockedDescription,
-  limited: detail.nsfwLimitedDescription,
-  allowed: detail.nsfwAllowedDescription,
-};
-
-const nsfwLabels: Record<NsfwTier, string> = {
-  blocked: detail.nsfwBlocked,
-  limited: detail.nsfwLimited,
-  allowed: detail.nsfwAllowed,
-};
-
-const nsfwValue: NsfwTier = data.nsfw ?? 'blocked';
-const nsfwLabel = nsfwLabels[nsfwValue];
-
-const stats: Stat[] = [
-  { label: detail.statContextWindow, value: data.context },
-  { label: detail.statFormat, value: data.format },
-  { label: detail.statSize, value: data.size },
-  { label: detail.statLicense, value: data.license },
-  {
-    label: detail.statContentPolicy,
-    value: nsfwLabel,
-    tone: nsfwTone[nsfwValue],
-    description: nsfwDescription[nsfwValue],
-  },
-  { label: detail.statBaseModel, value: data.baseModel ?? '—' },
-  { label: detail.statReleased, value: data.released ?? '—' },
-  { label: detail.statAuthor, value: data.author },
-].filter((s: Stat) => s.value && s.value !== '—');
-
-const settings = data.settings;
-const temperature = data.temperature;
-const hasSettings =
-  temperature !== undefined ||
-  (settings !== undefined &&
-    Object.values(settings).some((v) => v !== undefined));
-
-type Cell = string | null;
-type Row = {
-  name: string;
-  url: string | null;
-  notes: string | null;
-  isFree: boolean;
-  textInput: Cell;
-  textOutput: Cell;
-  cachedInput: Cell;
-  image: Cell;
-  audioPerSec: Cell;
-  audioPerMin: Cell;
-  videoPerSec: Cell;
-  videoPerMin: Cell;
-  embedding: Cell;
-};
-
-const providers: Provider[] | undefined = data.price;
-const hasPricing = providers !== undefined && providers.length > 0;
-
-function fmt(n: number, c: 'USD' | 'EUR'): string {
-  return (c === 'EUR' ? '€' : '$') + n.toFixed(4);
-}
-
-function normalizeProvider(p: Provider): Row {
-  const row: Row = {
-    name: p.provider,
-    url: p.url ?? null,
-    notes: p.notes ?? null,
-    isFree: false,
-    textInput: null,
-    textOutput: null,
-    cachedInput: null,
-    image: null,
-    audioPerSec: null,
-    audioPerMin: null,
-    videoPerSec: null,
-    videoPerMin: null,
-    embedding: null,
-  };
-  let hasPaid = false;
-  for (const line of p.pricing ?? []) {
-    switch (line.type) {
-      case 'text':
-        hasPaid = true;
-        row.textInput = fmt(line.input, line.currency);
-        row.textOutput = fmt(line.output, line.currency);
-        if (line.cachedInput !== undefined) {
-          row.cachedInput = fmt(line.cachedInput, line.currency);
-        }
-        break;
-      case 'image':
-        hasPaid = true;
-        row.image = fmt(line.perImage, line.currency);
-        break;
-      case 'audio':
-        hasPaid = true;
-        if (line.perSecond !== undefined)
-          row.audioPerSec = fmt(line.perSecond, line.currency);
-        if (line.perMinute !== undefined)
-          row.audioPerMin = fmt(line.perMinute, line.currency);
-        break;
-      case 'video':
-        hasPaid = true;
-        row.videoPerSec = fmt(line.perSecond, line.currency);
-        if (line.perMinute !== undefined)
-          row.videoPerMin = fmt(line.perMinute, line.currency);
-        break;
-      case 'embedding':
-        hasPaid = true;
-        row.embedding = fmt(line.input, line.currency);
-        break;
-      case 'free':
-        break;
-    }
-  }
-  row.isFree = !hasPaid;
-  return row;
-}
-
-const rows: Row[] = (providers ?? []).map(normalizeProvider);
-const show = {
-  textInput: rows.some((r: Row) => r.textInput !== null),
-  textOutput: rows.some((r: Row) => r.textOutput !== null),
-  cachedInput: rows.some((r: Row) => r.cachedInput !== null),
-  image: rows.some((r: Row) => r.image !== null),
-  audioPerSec: rows.some((r: Row) => r.audioPerSec !== null),
-  audioPerMin: rows.some((r: Row) => r.audioPerMin !== null),
-  videoPerSec: rows.some((r: Row) => r.videoPerSec !== null),
-  videoPerMin: rows.some((r: Row) => r.videoPerMin !== null),
-  embedding: rows.some((r: Row) => r.embedding !== null),
-};
-const hasAnyNotes = rows.some((r: Row) => r.notes !== null);
-const providerCountLabel =
-  rows.length === 1
-    ? detail.pricingProviderSingular
-    : detail.pricingProviderPlural.replace('{count}', String(rows.length));
+const {
+  localizedDescription,
+  localizedNotes,
+  stats,
+  metadata,
+  hasMetadata,
+  settings,
+  temperature,
+  hasSettings,
+  rows,
+  show,
+  hasAnyNotes,
+  hasPricing,
+  providerCountLabel,
+} = buildModelDetailViewData(data, lang as string, detail);
 ---
 
 <Layout title={data.name}>
@@ -245,12 +109,25 @@ const providerCountLabel =
     <div class="mt-6 glass-panel rounded-2xl p-6">
       <p class="text-sm text-base-content/85 leading-relaxed">{localizedDescription}</p>
     </div>
+    {hasMetadata && (
+      <div class="glass-panel rounded-2xl p-6 mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-4">{detail.sectionMetadata}</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {metadata.map((item) => (
+            <div class="rounded-xl border border-base-content/10 bg-base-100/20 px-4 py-3">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{item.label}</div>
+              <div class="text-sm text-base-content/85 mt-1 whitespace-pre-wrap break-words">{item.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
     {stats.length > 0 && (
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-6">
-        {stats.map((stat: Stat) => (
+        {stats.map((stat) => (
           <div class="glass-panel rounded-xl p-4 flex flex-col gap-1">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-base-content/50">{stat.label}</div>
-            <div class={`text-base sm:text-lg font-bold font-outfit truncate ${stat.tone ?? 'text-base-content'}`}>{stat.value}</div>
+            <div class={stat.labelClass ?? 'text-[10px] font-bold uppercase tracking-wider text-base-content/50'}>{stat.label}</div>
+            <div class={`${stat.valueClass ?? 'text-base sm:text-lg font-bold font-outfit truncate'} ${stat.tone ?? 'text-base-content'}`}>{stat.value}</div>
             {stat.description && (
               <div class="text-[11px] leading-snug text-base-content/60 mt-1" title={stat.description}>{stat.description}</div>
             )}
@@ -349,7 +226,7 @@ const providerCountLabel =
               </tr>
             </thead>
             <tbody>
-              {rows.map((r: Row) => (
+              {rows.map((r: PricingRow) => (
                 <tr class={r.isFree ? 'bg-success/10' : ''}>
                   <td>
                     <div class="flex items-center gap-2 min-w-0">

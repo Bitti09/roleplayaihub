@@ -1,8 +1,15 @@
 name: "Stable Diffusion 3"
 author: "Stability AI"
 released: "2024-06-12"
-format: "SafeTensors"
-size: "8B"
+added_at: "2026-07-11"
+last_verified_at: "2026-07-11"
+verification_note: "Verified against Stability API pricing and self-hosted repository listing."
+artifacts:
+  - format: "SafeTensors"
+    size: "8B"
+    source: "self-hosted"
+    repository: "https://huggingface.co/stabilityai"
+    quantizations: ["FP16", "BF16"]
 description:
   en: "Next-generation open image generation model from Stability AI, featuring advanced prompt adherence."
   de: "Open-Image-Generation-Modell der nächsten Generation von Stability AI mit fortschrittlicher Prompt-Treue."

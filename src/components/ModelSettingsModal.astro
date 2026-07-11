@@ -1,5 +1,10 @@
 ---
-import { getIntlayer } from 'intlayer';
+import {
+  getIntlayer,
+  getLocaleFromPath,
+  defaultLocale,
+  type LocalesValues,
+} from 'intlayer';
 import type { ModelData } from '../content.config';
 
 interface Props {
@@ -11,8 +16,14 @@ interface Props {
 const { name, cardId, data } = Astro.props;
 const { temperature, settings } = data;
 
-const collection = getIntlayer('collection');
-const detail = getIntlayer('model-detail');
+const detectedLocale = getLocaleFromPath(Astro.url.pathname) as
+  | LocalesValues
+  | undefined;
+const currentLocale: LocalesValues = (detectedLocale ??
+  defaultLocale) as LocalesValues;
+
+const collection = getIntlayer('collection', currentLocale);
+const detail = getIntlayer('model-detail', currentLocale);
 
 /**
  * Build the list of (label, value) pairs we want to surface, preserving

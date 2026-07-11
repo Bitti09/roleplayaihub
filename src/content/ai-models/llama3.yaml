@@ -1,8 +1,15 @@
 name: "Llama 3"
 author: "Meta"
 released: "2024-04-18"
-format: "GGUF"
-size: "8B/70B"
+added_at: "2026-07-11"
+last_verified_at: "2026-07-11"
+verification_note: "Verified against self-hosted repository listing and provider references."
+artifacts:
+  - format: "GGUF"
+    size: "8B/70B"
+    source: "self-hosted"
+    repository: "https://huggingface.co/meta-llama"
+    quantizations: ["Q2_K", "Q3_K_M", "Q4_K_M", "Q5_K_M", "Q6_K", "Q8_0"]
 description:
   en: "Meta's highly capable open-weights model, built for diverse text generation, reasoning, and instruction-following."
   de: "Metas leistungsstarkes Open-Weights-Modell, gebaut für vielfältige Textgenerierung, Schlussfolgern und Befolgen von Anweisungen."
